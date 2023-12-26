@@ -1,2 +1,2 @@
 # Lit
-GoLang + Cpp alternative to git
+GoLang alternative to git
