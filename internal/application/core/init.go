@@ -1,0 +1,54 @@
+package core
+
+import (
+	"os"
+	"path/filepath"
+	"sync"
+)
+
+// initializes the directory as lit directory
+func Init(path string) bool {
+	var wg sync.WaitGroup
+	litPath := filepath.Join(path, ".lit")
+
+	// Create the directory with 0700 permissions (read, write, execute for the owner only)
+	// 4=read 2=write 1=execute=7
+	// sequence is like owner group and other so 700 and first 0 is sticky bit
+	// sticky bit: if a file is created inside that directory it gets permission same as its parent if the sticky bit is set or get's permissions of group by default
+	err := os.Mkdir(litPath, 0700)
+	if err != nil {
+		return false
+	}
+
+	// Create other sub-directories
+	directories := []string{"branches", "info", "logs", "objects", "refs", "hooks"}
+
+	wg.Add(1)
+	go func(directories []string){
+		for _, v := range directories {
+			dirPath := filepath.Join(litPath, v)
+			err = os.Mkdir(dirPath, 0700)
+			if err != nil {
+				return 
+			}
+		}
+		wg.Done()
+	}(directories)
+
+	// Create file in .lit folder
+	files:=[]string{"config","description","HEAD","index","packed-refs"}
+	wg.Add(1)
+	go func(files []string){
+		for _,v:=range files{
+			fileName:=filepath.Join(litPath,v)
+			file, err := os.Create(fileName)
+			if err != nil {
+				return
+			}
+			defer file.Close()
+		}
+		wg.Done()
+	}(files)
+	wg.Wait()
+	return true
+}
