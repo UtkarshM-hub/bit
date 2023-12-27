@@ -42,6 +42,12 @@ func Init(path string) bool {
 		for _,v:=range files{
 			fileName:=filepath.Join(litPath,v)
 			file, err := os.Create(fileName)
+			
+			// CHANGE THIS IN FUTURE AND CREATE A SEPARATE BLOCK OF CODE
+			if v=="HEAD"{
+				file.WriteString("ref: refs/heads/master")
+			}
+
 			if err != nil {
 				return
 			}
