@@ -21,7 +21,7 @@ func Init(path string) bool {
 	}
 
 	// Create other sub-directories
-	directories := []string{"branches", "info", "logs", "objects", "refs", "hooks"}
+	directories := []string{"branches", "info", "logs", "hooks"}
 
 	wg.Add(1)
 	go func(directories []string){
@@ -49,6 +49,17 @@ func Init(path string) bool {
 		}
 		wg.Done()
 	}(files)
+
+	subfiles:=[]string{"objects/info","objects/pack","refs/heads","refs/tags"}
+	go func(subfiles []string){
+		for _,v:=range subfiles{
+			fileName:=filepath.Join(litPath,v)
+			err:=os.MkdirAll(fileName,0700)
+			if err!=nil{
+				return
+			}
+		}
+	}(subfiles)
 	wg.Wait()
 	return true
 }

@@ -2,10 +2,11 @@ package commands
 
 import (
 	"fmt"
+	"path/filepath"
 	"time"
 
-	util "github.com/UtkarshM-hub/Lit/internal/application/core/util"
 	core "github.com/UtkarshM-hub/Lit/internal/application/core"
+	util "github.com/UtkarshM-hub/Lit/internal/application/core/util"
 	"github.com/spf13/cobra"
 )
 
@@ -49,7 +50,19 @@ var initCmd = &cobra.Command{
 			return
 		}
 
-		done:=core.Init(dir)
-		fmt.Println(dir,done, time.Since(t))
+		// check if .lit directory already exists
+		litpath := filepath.Join(dir, ".lit")
+		err = util.DirectoryExists(litpath)
+		if err == nil {
+			fmt.Println("The directory is already lit 🔥")
+			return
+		}
+
+		// initialize that directory as lit directory
+		done := core.Init(dir)
+		if done {
+			fmt.Println(args[0], "initialized as 🔥 directory")
+		}
+		fmt.Println(dir, done, time.Since(t))
 	},
 }
