@@ -44,7 +44,7 @@ var initCmd = &cobra.Command{
 		}
 
 		// check if it exists
-		err = util.DirectoryExists(dir)
+		err = util.DoesExists(dir)
 		if err != nil {
 			fmt.Println(err.Error())
 			return
@@ -52,7 +52,7 @@ var initCmd = &cobra.Command{
 
 		// check if .lit directory already exists
 		litpath := filepath.Join(dir, ".lit")
-		err = util.DirectoryExists(litpath)
+		err = util.DoesExists(litpath)
 		if err == nil {
 			fmt.Println("The directory is already lit 🔥")
 			return
