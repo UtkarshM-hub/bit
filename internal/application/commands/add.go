@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/UtkarshM-hub/Lit/internal/application/core"
 	util "github.com/UtkarshM-hub/Lit/internal/application/core/util"
@@ -27,10 +28,16 @@ var addCmd = &cobra.Command{
 			fmt.Println(err.Error())
 			return
 		}
+		indexFilePath := filepath.Join(dir, "./.lit/index")
 
 		if args[0] == "." {
-			files := core.GetFilesStatus(dir)
-			core.CoreAdd(files)
+			AllFiles := core.GetFilesStatus(dir)
+			_,untracked,modified,deleted,err := core.GetStatus(AllFiles,indexFilePath)
+			if err!=nil{
+				fmt.Println(err.Error())
+				return
+			}
+			core.CoreAdd(dir,untracked,modified,deleted)
 		} else {
 			fmt.Println(args)
 		}
