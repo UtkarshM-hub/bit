@@ -8,11 +8,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sort"
 	"strconv"
 	"strings"
-
-	"github.com/UtkarshM-hub/Lit/internal/application/core/util"
 )
 
 func compressFile(filename, inputFilePath, outputFilePath string) error {
@@ -42,7 +39,6 @@ func compressFile(filename, inputFilePath, outputFilePath string) error {
 
 	// Close the writer to flush any remaining data
 	writer.Close()
-	fmt.Println(outputFilePath + "/" + filename)
 	// Write the compressed data to the output file
 	err = os.WriteFile(outputFilePath+"/"+filename, compressedBuffer.Bytes(), 0644)
 	if err != nil {
@@ -62,19 +58,8 @@ func calculateSHA1(input string) string {
 	return hashString
 }
 
-func CoreAdd(data []FileInfo) {
-
-	// Get the directory path
-	dir, err := util.FindDirectory(".lit")
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-
-	objectFilePath := filepath.Join(dir, "./.lit/objects")
-
-	// Loop over the data and store it in compressed format
-	for i, v := range data {
+func createNewObject(status string, newmp *map[string]FileInfo, files []FileInfo, objectFilePath string) {
+	for _, v := range files {
 		// Get File Content
 		content, err := os.ReadFile(v.FilePath)
 		if err != nil {
@@ -96,33 +81,50 @@ func CoreAdd(data []FileInfo) {
 			return
 		}
 
-		data[i].SHA1 = sha1Hash
-		// Store the data in index file in following form
-		// Name Last-Modified SHA-1-Hash Permissions
+		v.SHA1 = sha1Hash
+		v.FileStatus = status
+		(*newmp)[v.FilePath] = v
 	}
-	writeToIndex(data, dir)
 }
 
-func writeToIndex(Data []FileInfo, path string) {
-	// get index file path
+func CoreAdd(path string, untracked, modified, deleted []FileInfo) {
+
+	objectFilePath := filepath.Join(path, "./.lit/objects")
 	indexFilePath := filepath.Join(path, "./.lit/index")
 
-	// sort the data first
-	sort.Slice(Data,func(i,j int)bool{
-		return Data[i].FileName>Data[j].FileName
-	})
+	mp := GetIndexFileContent(indexFilePath)
+
+	// change the status as modified in the index file
+	createNewObject("M", &mp, modified, objectFilePath)
+
+	createNewObject("N", &mp, untracked, objectFilePath)
+
+	// change the status as deleted in index file
+	for _, v := range deleted {
+		currentStruct := mp[v.FilePath]
+		currentStruct.FileStatus = "D"
+		mp[v.FilePath] = currentStruct
+	}
+
+	// Loop over the untracked data and store it in compressed format
+
+	writeToIndex(mp, indexFilePath)
+
+}
+
+func writeToIndex(mp map[string]FileInfo, path string) {
 
 	// fmt.Println(Data)
 
 	var rawData []string
-	for _, v := range Data {
-		line := fmt.Sprintf("%v %v %v %v %v %v %v", v.FileName, v.FileModifiedAt, v.FileSize, v.FilePerm, v.SHA1, strings.Replace(v.FilePath," ","||",-1),v.FileStatus)
+	for _, v := range mp {
+		line := fmt.Sprintf("%v %v %v %v %v %v %v", v.FileName, v.FileModifiedAt, v.FileSize, v.FilePerm, v.SHA1, strings.Replace(v.FilePath, " ", "||", -1), v.FileStatus)
 
 		// fmt.Printf("Name: %v\nPath: %v\nTime: %v\nPerm: %v\nSize: %v\nSHA1: %v\n\n", v.FileName, strings.Replace(v.FilePath," ","||",-1), v.FileModifiedAt, v.FilePerm, v.FileSize,v.SHA1)
 		rawData = append(rawData, line)
 	}
 
-	err := os.WriteFile(indexFilePath, []byte(strings.Join(rawData, "\n")), 0644)
+	err := os.WriteFile(path, []byte(strings.Join(rawData, "\n")), 0644)
 	if err != nil {
 		fmt.Println(err.Error())
 	}

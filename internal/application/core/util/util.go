@@ -69,3 +69,4 @@ func FindDirectory(targetDir string) (string, error) {
 	}
 	return "", fmt.Errorf("Not a lit directory 🧯")
 }
+

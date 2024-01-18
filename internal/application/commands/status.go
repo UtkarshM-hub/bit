@@ -57,25 +57,28 @@ var statusCmd = &cobra.Command{
 		fmt.Printf("\nChanges to be committed:\n")
 		fmt.Printf("  (use 'lit restore --staged <file>...' to unstage)\n")
 		for _, v := range tracked {
-			fileP:=strings.Replace(v.FilePath,dir+"/","",-1)
+			fileP := strings.Replace(v.FilePath, dir+"/", "", -1)
 			color.Green.Printf("\t%v:    %v\n", statusMp[v.FileStatus], fileP)
 		}
 
 		// modified and deleted
-		if len(modified) > 0 {
+		if len(modified) > 0 || len(deleted) > 0 {
 			fmt.Printf("\nChanges not staged for commit:")
 			fmt.Printf("\n   (use 'lit add/rm <file>...' to update what will be committed)")
 			fmt.Printf("\n   (use 'lit restore <file>...' to discard changes in working directory)")
+		}
+		if len(modified) > 0 {
+
 			for _, v := range modified {
-				fileP:=strings.Replace(v.FilePath,dir+"/","",-1)
-				color.Red.Printf("\n\t%v:    %v", statusMp[v.FileStatus], fileP)
+				fileP := strings.Replace(v.FilePath, dir+"/", "", -1)
+				color.Red.Printf("\n\tmodified:    %v", fileP)
 			}
 		}
 
-		if len(deleted)>0{
+		if len(deleted) > 0 {
 			for _, v := range deleted {
-				fileP:=strings.Replace(v.FilePath,dir+"/","",-1)
-				color.Red.Printf("\n\t%v:    %v", statusMp[v.FileStatus], fileP)
+				fileP := strings.Replace(v.FilePath, dir+"/", "", -1)
+				color.Red.Printf("\n\tdeleted :    %v", fileP)
 			}
 		}
 
@@ -84,8 +87,8 @@ var statusCmd = &cobra.Command{
 			fmt.Printf("\nUntracked files:")
 			fmt.Printf("  (use 'lit add <file>...' to include in what will be committed)")
 			for _, v := range untracked {
-				fileP:=strings.Replace(v.FilePath,dir+"/","",-1)
-				color.Red.Printf("\n\t%v:    %v", statusMp[v.FileStatus], fileP)
+				fileP := strings.Replace(v.FilePath, dir+"/", "", -1)
+				color.Red.Printf("\n\tnew file:    %v", fileP)
 			}
 		}
 
