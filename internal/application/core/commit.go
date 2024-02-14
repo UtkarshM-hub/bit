@@ -113,17 +113,19 @@ func AppendToFiles(filePath string, commiter, email, msg, SHA1, time string) err
 		return err
 	}
 
+	var parentHash string
+
+	// modify the commit message and username in-order to replace space with ||
+	commiter=strings.Replace(commiter," ","||",-1)
+	msg=strings.Replace(msg," ","||",-1)
+
 	data_string := strings.Split(string(data), "\n")
 	fmt.Println()
 	if len(data_string) == 0 || data_string[0] == "" {
-		NewData := fmt.Sprintf("%v %v %v %v %v %v", "0000000000000000000000000000000000000000", SHA1, commiter, email, time, msg)
-		err := os.WriteFile(filePath, []byte(NewData), 0644)
-		if err != nil {
-			return err
-		}
-		return nil
+		parentHash="0000000000000000000000000000000000000000"
+	} else {
+		parentHash = strings.Split(data_string[len(data_string)-1], " ")[1]
 	}
-	parentHash := strings.Split(data_string[len(data_string)-1], " ")[1]
 	NewData := fmt.Sprintf("%v %v %v %v %v %v", parentHash, SHA1, commiter, email, time, msg)
 	data_string = append(data_string, NewData)
 	err = os.WriteFile(filePath, []byte(strings.Join(data_string, "\n")), 0644)
