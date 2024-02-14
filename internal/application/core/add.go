@@ -118,7 +118,7 @@ func writeToIndex(mp map[string]FileInfo, path string) {
 
 	var rawData []string
 	for _, v := range mp {
-		line := fmt.Sprintf("%v %v %v %v %v %v %v", v.FileName, v.FileModifiedAt, v.FileSize, v.FilePerm, v.SHA1, strings.Replace(v.FilePath, " ", "||", -1), v.FileStatus)
+		line := fmt.Sprintf("%v %v %v %v %v %v %v %v", v.FileName, v.FileModifiedAt, v.FileSize, v.FilePerm, v.SHA1, strings.Replace(v.FilePath, " ", "||", -1), v.FileStatus,v.CommitStatus)
 
 		// fmt.Printf("Name: %v\nPath: %v\nTime: %v\nPerm: %v\nSize: %v\nSHA1: %v\n\n", v.FileName, strings.Replace(v.FilePath," ","||",-1), v.FileModifiedAt, v.FilePerm, v.FileSize,v.SHA1)
 		rawData = append(rawData, line)

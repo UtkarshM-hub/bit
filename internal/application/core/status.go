@@ -19,6 +19,7 @@ type FileInfo struct {
 	FileModifiedAt time.Time
 	SHA1           string
 	FileStatus     string
+	CommitStatus   string
 }
 
 func GetIndexFileContent(path string) map[string]FileInfo {
@@ -57,6 +58,7 @@ func GetIndexFileContent(path string) map[string]FileInfo {
 				FilePerm:       uint32(perm),
 				SHA1:           fields[7],
 				FileStatus:     fields[9],
+				CommitStatus:   fields[10],
 			}
 
 			mp[key] = newEntry
@@ -93,7 +95,7 @@ func GetFilesStatus(dir string) []FileInfo {
 		// fmt.Println(path,modifiedTime)
 
 		// STORE ENTIES IN SORTED ORDER
-		files = append(files, FileInfo{FileName: info.Name(), FilePath: path, FileSize: uint64(info.Size()), FilePerm: permissions, FileModifiedAt: modifiedTime, SHA1: "", FileStatus: "N"})
+		files = append(files, FileInfo{FileName: info.Name(), FilePath: path, FileSize: uint64(info.Size()), FilePerm: permissions, FileModifiedAt: modifiedTime, SHA1: "", FileStatus: "N",CommitStatus: "c"})
 
 		return nil
 	})
@@ -122,7 +124,7 @@ func GetStatus(files []FileInfo, path string) ([]FileInfo, []FileInfo, []FileInf
 			continue
 		}
 		// check time
-		if currentF.FileModifiedAt.Equal(v.FileModifiedAt) {
+		if currentF.FileModifiedAt.Equal(v.FileModifiedAt) && currentF.CommitStatus!="C" {
 			// In v all the values have status as 'N' so we'll have to take currentF
 			tracked = append(tracked, currentF)
 			delete(mp, v.FilePath)
@@ -142,17 +144,22 @@ func GetStatus(files []FileInfo, path string) ([]FileInfo, []FileInfo, []FileInf
 		// Find sha1 hash of the header+content
 		sha1HashWD := calculateSHA1(header + string(content))
 
-		if sha1HashWD == currentF.SHA1 {
+		if sha1HashWD == currentF.SHA1 && currentF.CommitStatus!="C" {
 			tracked = append(tracked, currentF)
 			delete(mp, v.FilePath)
 			continue
 		}
-		modified = append(modified, v)
-		delete(mp, v.FilePath)
+		if currentF.CommitStatus!="C"{
+			modified = append(modified, v)
+			delete(mp, v.FilePath)
+		}
 	}
 
 	// Get deleted
 	for _, val := range mp {
+		if val.CommitStatus=="C"{
+			continue
+		}
 		if val.FileStatus=="D"{
 			tracked = append(tracked, val)
 			continue
