@@ -49,16 +49,24 @@ var statusCmd = &cobra.Command{
 			return
 		}
 
+		if len(tracked) == 0 && len(untracked) == 0 && len(modified) == 0 && len(deleted) == 0 {
+			fmt.Println("On branch <branch_name>")
+			fmt.Println("Nothing to commit, working tree clean")
+			return
+		}
+
 		statusMp := map[string]string{"M": "modified", "D": "deleted", "N": "new file"}
 
 		// print tracked files
 		fmt.Println("On branch <branch name>")
-		fmt.Println("Your branch is up to date with '<origin>/<branch name>'.")
-		fmt.Printf("\nChanges to be committed:\n")
-		fmt.Printf("  (use 'lit restore --staged <file>...' to unstage)\n")
-		for _, v := range tracked {
-			fileP := strings.Replace(v.FilePath, dir+"/", "", -1)
-			color.Green.Printf("\t%v:    %v\n", statusMp[v.FileStatus], fileP)
+		// fmt.Println("Your branch is up to date with '<origin>/<branch name>'.")
+		if len(tracked) > 0 {
+			fmt.Printf("\nChanges to be committed:\n")
+			fmt.Printf("  (use 'lit restore --staged <file>...' to unstage)\n")
+			for _, v := range tracked {
+				fileP := strings.Replace(v.FilePath, dir+"/", "", -1)
+				color.Green.Printf("\t%v:    %v\n", statusMp[v.FileStatus], fileP)
+			}
 		}
 
 		// modified and deleted

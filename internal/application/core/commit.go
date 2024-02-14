@@ -89,6 +89,17 @@ func Commit(commitMessage string) error {
 		return err
 	}
 
+	// store to index file
+
+	for i, v := range mp {
+		currentFile := mp[v.FilePath]
+		currentFile.CommitStatus="C"
+		mp[i]=currentFile
+	}
+
+	// write to index
+	writeToIndex(mp,indexFilePath)
+
 	return nil
 }
 
