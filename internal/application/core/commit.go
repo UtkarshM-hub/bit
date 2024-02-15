@@ -32,6 +32,7 @@ func Commit(commitMessage string) error {
 	// take content and append
 	logsHEAD_Append := filepath.Join(dir, "./.lit/logs/HEAD")
 	logsFilePath := filepath.Join(dir, "./.lit/logs/refs/heads")
+	
 
 	// Replace the file content
 	refsFilePath := filepath.Join(dir, "./.lit/refs/heads")
@@ -118,12 +119,13 @@ func AppendToFiles(filePath string, commiter, email, msg, SHA1, time string) err
 	// modify the commit message and username in-order to replace space with ||
 	commiter=strings.Replace(commiter," ","||",-1)
 	msg=strings.Replace(msg," ","||",-1)
-
-	data_string := strings.Split(string(data), "\n")
-	fmt.Println()
-	if len(data_string) == 0 || data_string[0] == "" {
+	var data_string []string
+	
+	if len(data) == 0 {
+		fmt.Println(data_string)
 		parentHash="0000000000000000000000000000000000000000"
 	} else {
+		data_string = strings.Split(string(data), "\n")
 		parentHash = strings.Split(data_string[len(data_string)-1], " ")[1]
 	}
 	NewData := fmt.Sprintf("%v %v %v %v %v %v", parentHash, SHA1, commiter, email, time, msg)
@@ -133,7 +135,6 @@ func AppendToFiles(filePath string, commiter, email, msg, SHA1, time string) err
 		return err
 	}
 	return nil
-	// next
 }
 
 func compressCommitContent(filename string, content []byte, outputFilePath string) error {
