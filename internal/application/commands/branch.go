@@ -9,8 +9,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var list_branches bool
+
 func init() {
 	rootCmd.AddCommand(branchCmd)
+	branchCmd.Flags().BoolVarP(&list_branches, "list", "a", false, "Used to list branches with current active branch")
 }
 
 var branchCmd = &cobra.Command{
@@ -18,18 +21,24 @@ var branchCmd = &cobra.Command{
 	Short: "creates branch so separate the different workflows of the project",
 	Long:  `creates branch so separate the different workflows of the project`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) == 0 {
+		if len(args) == 0 && !list_branches {
 			fmt.Println("Arguments not provided")
 			return
 		}
-
-		branchName := args[0]
-
+		
 		dir, err := util.FindDirectory(".lit")
 		if err != nil {
 			fmt.Println(err.Error())
 			return
 		}
+		
+		if list_branches{
+			core.ListBranches(dir)
+			return
+		}
+
+		branchName := args[0]
+
 		// indexFilePath := filepath.Join(dir, "./.lit/index")
 
 		// check if branch already exist or not
