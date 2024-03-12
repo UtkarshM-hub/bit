@@ -42,9 +42,11 @@ var checkoutCmd = &cobra.Command{
 		}
 
 		// change active branch
-		err=core.ChangeActiveBranch(dir,branchName)
-		if err!=nil{
+		err = core.ChangeActiveBranch(dir, branchName)
+		if err != nil {
 			fmt.Println(err)
 		}
+
+		core.DecompressFile(filepath.Join(dir, "/.lit/objects/3c/cd72b349cb144d17a6a66003344568ae929c6f"), filepath.Join(dir, "/name"))
 	},
 }

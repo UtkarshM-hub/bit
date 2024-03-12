@@ -1,7 +1,10 @@
 package core
 
 import (
+	"bytes"
+	"compress/zlib"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -30,29 +33,30 @@ func CreateBranch(pathToLit, branchname string) error {
 	return nil
 }
 
-func CurrentActiveBranch(pathToLit string) (string,error) {
+func CurrentActiveBranch(pathToLit string) (string, error) {
 	// get current active branch
 	HEAD_file_path := filepath.Join(pathToLit, "/.lit/HEAD")
 	data, err := os.ReadFile(HEAD_file_path)
 	if err != nil {
-		return "",err
+		return "", err
 	}
 
 	data_arr := strings.Split(string(data), "/")
 	current_active_branch := data_arr[len(data_arr)-1]
-	return current_active_branch,nil
+	return current_active_branch, nil
 }
 
 func ChangeActiveBranch(pathToLit, branchname string) error {
 
 	HEAD_file_path := filepath.Join(pathToLit, "/.lit/HEAD")
-	logs_HEAD_file_path:=filepath.Join(pathToLit,"/.lit/logs/HEAD")
+	logs_HEAD_file_path := filepath.Join(pathToLit, "/.lit/logs/HEAD")
 
-	prev_active_branch,err:=CurrentActiveBranch(pathToLit)
+	prev_active_branch, err := CurrentActiveBranch(pathToLit)
 
-	prev_active_branch_path:=filepath.Join(pathToLit,"/.lit/refs/heads/"+prev_active_branch)
-	current_active_branch_path:=filepath.Join(pathToLit,"/.lit/refs/heads/"+branchname)
-	if err!=nil{
+	prev_active_branch_path := filepath.Join(pathToLit, "/.lit/refs/heads/"+prev_active_branch)
+	current_active_branch_path := filepath.Join(pathToLit, "/.lit/refs/heads/"+branchname)
+
+	if err != nil {
 		return err
 	}
 
@@ -63,34 +67,34 @@ func ChangeActiveBranch(pathToLit, branchname string) error {
 	}
 
 	// add logs into logs file
-	prev_commit_hash,err:=util.ReadFile(prev_active_branch_path)
-	if err!=nil{
+	prev_commit_hash, err := util.ReadFile(prev_active_branch_path)
+	if err != nil {
 		return err
 	}
-	current_commit_hash,err:=util.ReadFile(current_active_branch_path)
-	if err!=nil{
+	current_commit_hash, err := util.ReadFile(current_active_branch_path)
+	if err != nil {
 		return err
 	}
 
-	if prev_commit_hash==""{
-		prev_commit_hash="0000000000000000000000000000000000000000"
+	if prev_commit_hash == "" {
+		prev_commit_hash = "0000000000000000000000000000000000000000"
 	}
-	if current_commit_hash=="" && prev_commit_hash==""{
-		current_commit_hash="0000000000000000000000000000000000000000"
-	} else if current_commit_hash=="" {
-		current_commit_hash=prev_commit_hash
+	if current_commit_hash == "" && prev_commit_hash == "" {
+		current_commit_hash = "0000000000000000000000000000000000000000"
+	} else if current_commit_hash == "" {
+		current_commit_hash = prev_commit_hash
 	}
 
 	commiter := strings.Replace("Utkarsh Mandape", " ", "||", -1)
-	msg := strings.Replace(fmt.Sprintf("checkout: moving from %v to %v",prev_active_branch,branchname), " ", "||", -1)
+	msg := strings.Replace(fmt.Sprintf("checkout: moving from %v to %v", prev_active_branch, branchname), " ", "||", -1)
 	NewData := fmt.Sprintf("%v %v %v %v %v %v", prev_commit_hash, current_commit_hash, commiter, "utmandape4@gmail.com", time.Now().String(), msg)
 
-	err=LogsBranchChange(logs_HEAD_file_path,NewData)
+	err = LogsBranchChange(logs_HEAD_file_path, NewData)
 
 	return err
 }
 
-func LogsBranchChange(logFilePath,msg string) error {
+func LogsBranchChange(logFilePath, msg string) error {
 	err := util.DoesExists(logFilePath)
 	if err != nil {
 		os.Create(logFilePath)
@@ -101,7 +105,7 @@ func LogsBranchChange(logFilePath,msg string) error {
 	}
 
 	// modify the commit message and username in-order to replace space with ||
-	data_string:=strings.Split(string(data),"\n")
+	data_string := strings.Split(string(data), "\n")
 	data_string = append(data_string, msg)
 	err = os.WriteFile(logFilePath, []byte(strings.Join(data_string, "\n")), 0644)
 	if err != nil {
@@ -128,8 +132,8 @@ func ListBranches(pathToLit string) error {
 		return nil
 	})
 
-	current_active_branch,err:=CurrentActiveBranch(pathToLit)
-	if err!=nil{
+	current_active_branch, err := CurrentActiveBranch(pathToLit)
+	if err != nil {
 		fmt.Println(err)
 		return err
 	}
@@ -140,7 +144,47 @@ func ListBranches(pathToLit string) error {
 			color.Green.Printf("* %v\n", v)
 			continue
 		}
-		fmt.Printf("  %v\n",v)
+		fmt.Printf("  %v\n", v)
 	}
+	return nil
+}
+
+func Checkout(PathToLit, BranchName string){
+	// branch_pointer_file_path:=filepath.Join(PathToLit,"/.lit/refs/heads/"+BranchName)
+	
+}
+
+func DecompressFile(inputFilePath, outputFilePath string) error {
+
+	// Read the compressed data from the input file
+	compressedData, err := os.ReadFile(inputFilePath)
+	if err != nil {
+		return err
+	}
+
+	// Create a zlib reader with default compression level
+	reader, err := zlib.NewReader(bytes.NewReader(compressedData))
+	if err != nil {
+		return err
+	}
+
+	// Create a buffer to store the decompressed data
+	var decompressedBuffer bytes.Buffer
+
+	// Copy the data from the zlib reader to the decompressed buffer
+	_, err = io.Copy(&decompressedBuffer, reader)
+	if err != nil {
+		return err
+	}
+
+	// Close the zlib reader
+	reader.Close()
+
+	// Write the decompressed data to the output file
+	err = os.WriteFile(outputFilePath, decompressedBuffer.Bytes(), 0644)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

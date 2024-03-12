@@ -13,10 +13,11 @@ import (
 )
 
 type TreeInfo struct {
-	Type     string
-	Perm     uint64
-	SHA1     string
-	FileName string
+	Type        string
+	Perm        int64
+	SHA1        string
+	FileName    string
+	Modified_at string
 }
 
 func Commit(commitMessage string) error {
@@ -175,7 +176,7 @@ func createTreeObj(dirContent []TreeInfo, path, dirName string) (TreeInfo, error
 	var fileContent []string
 
 	for _, v := range dirContent {
-		line := fmt.Sprintf("%v %v %v %v", v.Perm, v.Type, v.SHA1, v.FileName)
+		line := fmt.Sprintf("%v %v %v %v %v", v.Type, v.Modified_at, v.FileName, v.SHA1, v.Perm)
 		fileContent = append(fileContent, line)
 	}
 	content := strings.Join(fileContent, "\n")
@@ -239,7 +240,7 @@ func GetTree(indexFile *map[string]FileInfo, mainDir, dir string) (TreeInfo, err
 			return nil
 		}
 
-		NewTreeInfo := TreeInfo{Perm: 100644, FileName: file.FileName, SHA1: file.SHA1, Type: "blob"}
+		NewTreeInfo := TreeInfo{Perm: 100644, FileName: file.FileName, SHA1: file.SHA1, Type: "blob", Modified_at: file.FileModifiedAt.String()}
 
 		dirContent = append(dirContent, NewTreeInfo)
 
