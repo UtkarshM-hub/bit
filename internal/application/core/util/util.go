@@ -70,3 +70,7 @@ func FindDirectory(targetDir string) (string, error) {
 	return "", fmt.Errorf("Not a lit directory 🧯")
 }
 
+func ReadFile(filepath string) (string, error) {
+	data, err := os.ReadFile(filepath)
+	return string(data), err
+}

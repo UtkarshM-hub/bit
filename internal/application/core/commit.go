@@ -13,10 +13,11 @@ import (
 )
 
 type TreeInfo struct {
-	Type     string
-	Perm     uint64
-	SHA1     string
-	FileName string
+	Type        string
+	Perm        int64
+	SHA1        string
+	FileName    string
+	Modified_at string
 }
 
 func Commit(commitMessage string) error {
@@ -26,13 +27,17 @@ func Commit(commitMessage string) error {
 		return nil
 	}
 
+	current_active_branch, err := CurrentActiveBranch(dir)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
 	indexFilePath := filepath.Join(dir, "./.lit/index")
-	HEADFilePath := filepath.Join(dir, "./.lit/HEAD")
 
 	// take content and append
 	logsHEAD_Append := filepath.Join(dir, "./.lit/logs/HEAD")
 	logsFilePath := filepath.Join(dir, "./.lit/logs/refs/heads")
-	
 
 	// Replace the file content
 	refsFilePath := filepath.Join(dir, "./.lit/refs/heads")
@@ -65,7 +70,7 @@ func Commit(commitMessage string) error {
 
 	// // write commit object to logs/refs/heads/branchname and refs/heads/branchname
 	commit_time := time.Now().String()
-	err = AppendToFiles(logsFilePath+"/master", "Utkarsh Mandape", "utmandape4@gmail.com", commitMessage, sha1Hash, commit_time)
+	err = AppendToFiles(logsFilePath+"/"+current_active_branch, "Utkarsh Mandape", "utmandape4@gmail.com", commitMessage, sha1Hash, commit_time)
 
 	if err != nil {
 		return err
@@ -81,11 +86,7 @@ func Commit(commitMessage string) error {
 		return err
 	}
 
-	err = os.WriteFile(fmt.Sprintf("%v/%v", refsFilePath+"/", "master"), []byte(sha1Hash), 0644)
-	if err != nil {
-		return err
-	}
-	err = os.WriteFile(HEADFilePath, []byte("ref: refs/heads/branch"), 0644)
+	err = os.WriteFile(fmt.Sprintf("%v/%v", refsFilePath+"/", current_active_branch), []byte(sha1Hash), 0644)
 	if err != nil {
 		return err
 	}
@@ -94,17 +95,17 @@ func Commit(commitMessage string) error {
 
 	for i, v := range mp {
 		currentFile := mp[v.FilePath]
-		currentFile.CommitStatus="C"
-		mp[i]=currentFile
+		currentFile.CommitStatus = "C"
+		mp[i] = currentFile
 	}
 
 	// write to index
-	writeToIndex(mp,indexFilePath)
+	writeToIndex(mp, indexFilePath)
 
 	return nil
 }
 
-func AppendToFiles(filePath string, commiter, email, msg, SHA1, time string) error {
+func AppendToFiles(filePath, commiter, email, msg, SHA1, time string) error {
 	err := util.DoesExists(filePath)
 	if err != nil {
 		os.Create(filePath)
@@ -117,13 +118,13 @@ func AppendToFiles(filePath string, commiter, email, msg, SHA1, time string) err
 	var parentHash string
 
 	// modify the commit message and username in-order to replace space with ||
-	commiter=strings.Replace(commiter," ","||",-1)
-	msg=strings.Replace(msg," ","||",-1)
+	commiter = strings.Replace(commiter, " ", "||", -1)
+	msg = strings.Replace(msg, " ", "||", -1)
 	var data_string []string
-	
+
 	if len(data) == 0 {
 		fmt.Println(data_string)
-		parentHash="0000000000000000000000000000000000000000"
+		parentHash = "0000000000000000000000000000000000000000"
 	} else {
 		data_string = strings.Split(string(data), "\n")
 		parentHash = strings.Split(data_string[len(data_string)-1], " ")[1]
@@ -175,7 +176,7 @@ func createTreeObj(dirContent []TreeInfo, path, dirName string) (TreeInfo, error
 	var fileContent []string
 
 	for _, v := range dirContent {
-		line := fmt.Sprintf("%v %v %v %v", v.Perm, v.Type, v.SHA1, v.FileName)
+		line := fmt.Sprintf("%v %v %v %v %v", v.Type, v.Modified_at, v.FileName, v.SHA1, v.Perm)
 		fileContent = append(fileContent, line)
 	}
 	content := strings.Join(fileContent, "\n")
@@ -239,7 +240,7 @@ func GetTree(indexFile *map[string]FileInfo, mainDir, dir string) (TreeInfo, err
 			return nil
 		}
 
-		NewTreeInfo := TreeInfo{Perm: 100644, FileName: file.FileName, SHA1: file.SHA1, Type: "blob"}
+		NewTreeInfo := TreeInfo{Perm: 100644, FileName: file.FileName, SHA1: file.SHA1, Type: "blob", Modified_at: file.FileModifiedAt.String()}
 
 		dirContent = append(dirContent, NewTreeInfo)
 
