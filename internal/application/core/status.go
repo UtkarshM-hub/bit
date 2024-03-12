@@ -35,7 +35,6 @@ func GetIndexFileContent(path string) map[string]FileInfo {
 
 		timeLayout := "2006-01-02 15:04:05.999999999 -0700 MST"
 
-
 		for scanner.Scan() {
 			line := scanner.Text()
 			fields := strings.Split(line, " ")
@@ -95,7 +94,7 @@ func GetFilesStatus(dir string) []FileInfo {
 		// fmt.Println(path,modifiedTime)
 
 		// STORE ENTIES IN SORTED ORDER
-		files = append(files, FileInfo{FileName: info.Name(), FilePath: path, FileSize: uint64(info.Size()), FilePerm: permissions, FileModifiedAt: modifiedTime, SHA1: "", FileStatus: "N",CommitStatus: "c"})
+		files = append(files, FileInfo{FileName: info.Name(), FilePath: path, FileSize: uint64(info.Size()), FilePerm: permissions, FileModifiedAt: modifiedTime, SHA1: "", FileStatus: "N", CommitStatus: "c"})
 
 		return nil
 	})
@@ -123,8 +122,9 @@ func GetStatus(files []FileInfo, path string) ([]FileInfo, []FileInfo, []FileInf
 			untracked = append(untracked, v)
 			continue
 		}
+
 		// check time
-		if currentF.FileModifiedAt.Equal(v.FileModifiedAt) && currentF.CommitStatus!="C" {
+		if currentF.FileModifiedAt.Equal(v.FileModifiedAt) && currentF.CommitStatus!="C"{
 			// In v all the values have status as 'N' so we'll have to take currentF
 			tracked = append(tracked, currentF)
 			delete(mp, v.FilePath)
@@ -144,12 +144,18 @@ func GetStatus(files []FileInfo, path string) ([]FileInfo, []FileInfo, []FileInf
 		// Find sha1 hash of the header+content
 		sha1HashWD := calculateSHA1(header + string(content))
 
-		if sha1HashWD == currentF.SHA1 && currentF.CommitStatus!="C" {
+		if sha1HashWD == currentF.SHA1 && currentF.CommitStatus!="C"{
 			tracked = append(tracked, currentF)
 			delete(mp, v.FilePath)
 			continue
 		}
-		if currentF.CommitStatus!="C"{
+
+		// the purpose of adding this check was 
+		// we are ignoring the commited files from the starting so that they will not get included in the tracked files
+		// but in that process they were getting added to modified instead
+		// to prevent that behviour, following if condition is added for modified files
+
+		if sha1HashWD != currentF.SHA1{
 			modified = append(modified, v)
 			delete(mp, v.FilePath)
 		}
@@ -157,10 +163,10 @@ func GetStatus(files []FileInfo, path string) ([]FileInfo, []FileInfo, []FileInf
 
 	// Get deleted
 	for _, val := range mp {
-		if val.CommitStatus=="C"{
+		if val.CommitStatus == "C" {
 			continue
 		}
-		if val.FileStatus=="D"{
+		if val.FileStatus == "D" {
 			tracked = append(tracked, val)
 			continue
 		}
