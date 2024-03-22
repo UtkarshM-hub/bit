@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"sync"
@@ -35,28 +36,7 @@ func Init(path string) bool {
 		wg.Done()
 	}(directories)
 
-	// Create file in .lit folder
-	files:=[]string{"config","description","HEAD","index","packed-refs"}
-	wg.Add(1)
-	go func(files []string){
-		for _,v:=range files{
-			fileName:=filepath.Join(litPath,v)
-			file, err := os.Create(fileName)
-			
-			// CHANGE THIS IN FUTURE AND CREATE A SEPARATE BLOCK OF CODE
-			if v=="HEAD"{
-				file.WriteString("ref: refs/heads/master")
-			}
-
-			if err != nil {
-				return
-			}
-			defer file.Close()
-		}
-		wg.Done()
-	}(files)
-
-	subfiles:=[]string{"objects/info","objects/pack","refs/heads","refs/tags"}
+	subfiles:=[]string{"objects/info","objects/pack","refs/heads","refs/tags","logs/refs/heads"}
 	go func(subfiles []string){
 		for _,v:=range subfiles{
 			fileName:=filepath.Join(litPath,v)
@@ -66,6 +46,23 @@ func Init(path string) bool {
 			}
 		}
 	}(subfiles)
+
 	wg.Wait()
+	// Create file in .lit folder
+	files:=[]string{"config","description","HEAD","index","packed-refs","/refs/heads/master","/logs/refs/heads/master"}
+	for _,v:=range files{
+		fileName:=filepath.Join(litPath,v)
+		file, err := os.Create(fileName)
+		
+		// CHANGE THIS IN FUTURE AND CREATE A SEPARATE BLOCK OF CODE
+		if v=="HEAD"{
+			file.WriteString("ref: refs/heads/master")
+		}
+
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		defer file.Close()
+	}
 	return true
 }
