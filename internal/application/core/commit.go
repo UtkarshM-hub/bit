@@ -18,6 +18,8 @@ type TreeInfo struct {
 	SHA1        string
 	FileName    string
 	Modified_at string
+	FilePath    string
+	FileSize    int
 }
 
 func Commit(commitMessage string) error {
@@ -120,13 +122,11 @@ func AppendToFiles(filePath, commiter, email, msg, SHA1, time string) error {
 	// modify the commit message and username in-order to replace space with ||
 	commiter = strings.Replace(commiter, " ", "||", -1)
 	msg = strings.Replace(msg, " ", "||", -1)
-	var data_string []string
+	data_string:= strings.Split(string(data), "\n")
 
-	if len(data) == 0 {
-		fmt.Println(data_string)
+	if len(data) == 0 || data_string[0] == " " {
 		parentHash = "0000000000000000000000000000000000000000"
 	} else {
-		data_string = strings.Split(string(data), "\n")
 		parentHash = strings.Split(data_string[len(data_string)-1], " ")[1]
 	}
 	NewData := fmt.Sprintf("%v %v %v %v %v %v", parentHash, SHA1, commiter, email, time, msg)
@@ -176,7 +176,7 @@ func createTreeObj(dirContent []TreeInfo, path, dirName string) (TreeInfo, error
 	var fileContent []string
 
 	for _, v := range dirContent {
-		line := fmt.Sprintf("%v %v %v %v %v", v.Type, v.Modified_at, v.FileName, v.SHA1, v.Perm)
+		line := fmt.Sprintf("%v %v %v %v %v %v %v", v.Type, v.Modified_at, v.FileName, v.SHA1, v.Perm, v.FileSize, strings.Replace(v.FilePath, " ", "||", -1))
 		fileContent = append(fileContent, line)
 	}
 	content := strings.Join(fileContent, "\n")
@@ -202,6 +202,7 @@ func createTreeObj(dirContent []TreeInfo, path, dirName string) (TreeInfo, error
 		Type:     "Tree",
 		SHA1:     sha1Hash,
 		FileName: directoryName,
+		FilePath: dirName,
 		Perm:     040000,
 	}, nil
 }
@@ -240,7 +241,7 @@ func GetTree(indexFile *map[string]FileInfo, mainDir, dir string) (TreeInfo, err
 			return nil
 		}
 
-		NewTreeInfo := TreeInfo{Perm: 100644, FileName: file.FileName, SHA1: file.SHA1, Type: "blob", Modified_at: file.FileModifiedAt.String()}
+		NewTreeInfo := TreeInfo{Perm: 100644, FileName: file.FileName, SHA1: file.SHA1, Type: "blob", Modified_at: file.FileModifiedAt.String(), FileSize: int(file.FileSize), FilePath: strings.Replace(file.FilePath, " ", "||", -1)}
 
 		dirContent = append(dirContent, NewTreeInfo)
 
