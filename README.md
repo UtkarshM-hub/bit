@@ -1,2 +1,2 @@
-# Lit
+# Bit
 GoLang alternative to git
