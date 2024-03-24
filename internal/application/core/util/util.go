@@ -3,6 +3,7 @@ package util
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 )
@@ -73,4 +74,23 @@ func FindDirectory(targetDir string) (string, error) {
 func ReadFile(filepath string) (string, error) {
 	data, err := os.ReadFile(filepath)
 	return string(data), err
+}
+
+func ISDirectoryEmpty(dirPath string) (bool, error) {
+	f, err := os.Open(dirPath)
+	if err != nil {
+		return false, err
+	}
+	defer f.Close()
+
+	_, err = f.Readdirnames(1)
+	if err == nil {
+		// Directory is not empty
+		return false, nil
+	}
+	if err == io.EOF {
+		// Directory is empty
+		return true, nil
+	}
+	return false, err
 }

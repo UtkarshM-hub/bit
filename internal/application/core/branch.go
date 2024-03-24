@@ -195,6 +195,7 @@ func Checkout(PathToLit, BranchName string) {
 		fmt.Println(err)
 	}
 
+	DeleteEmptyDir(PathToLit)
 }
 
 // generate index file for the new branch
@@ -378,4 +379,30 @@ func DecompressAndSaveFile(inputFilePath, outputFilePath string) error {
 	}
 
 	return nil
+}
+
+func DeleteEmptyDir(rootDir string){
+	err := filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
+        if err != nil {
+            return err
+        }
+        if info.IsDir() {
+            isEmpty, err := util.ISDirectoryEmpty(path)
+            if err != nil {
+                return err
+            }
+            if isEmpty {
+                fmt.Printf("Deleting empty directory: %s\n", path)
+                err := os.Remove(path)
+                if err != nil {
+                    return err
+                }
+            }
+        }
+        return nil
+    })
+
+    if err != nil {
+        fmt.Println("Error:", err)
+    }
 }
