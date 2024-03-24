@@ -275,26 +275,23 @@ func Switch(dir string, currentB, newB map[string]FileInfo) error {
 			}
 		}
 
-		// create file if it doesn't exists
-		// _, err := os.Create(v.FilePath)
-		// if err != nil {
-		// 	last_Slash_Index := strings.LastIndex(v.FilePath, "/")
-		// 	err := os.MkdirAll(v.FilePath[:last_Slash_Index], 040000)
-		// 	if err != nil {
-		// 		return err
-		// 	}
-		// 	_, err = os.Create(v.FilePath)
-		// 	if err != nil {
-		// 		return err
-		// 	}
-		// }
+		// create folder if it doesn't exists
+		DirectoyPath := filepath.Dir(v.FilePath)
+		err := util.DoesExists(DirectoyPath)
+		if err != nil {
+			err = os.MkdirAll(DirectoyPath, 0777)
+			if err != nil {
+				fmt.Println("Error while creating directory", err)
+			}
+		}
+
 		fmt.Println("switch creating", v.FilePath)
 
 		inputFilePath := filepath.Join(dir, "/.bit/objects", string(v.SHA1[:2])+"/"+string(v.SHA1[2:]))
 
 		fmt.Println(inputFilePath, v.FilePath)
 
-		err := DecompressAndSaveFile(inputFilePath, v.FilePath)
+		err = DecompressAndSaveFile(inputFilePath, v.FilePath)
 
 		if err != nil {
 			fmt.Println("this is it", err.Error())
