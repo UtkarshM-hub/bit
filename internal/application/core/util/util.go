@@ -67,7 +67,7 @@ func FindDirectory(targetDir string) (string, error) {
 
 		currentDir = parentDir
 	}
-	return "", fmt.Errorf("Not a lit directory 🧯")
+	return "", fmt.Errorf("Not a bit directory 🧯")
 }
 
 func ReadFile(filepath string) (string, error) {

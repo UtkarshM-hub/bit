@@ -16,8 +16,8 @@ func init() {
 
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: "Initializes current directory as lit directory",
-	Long:  `Initializes current directory as lit directory`,
+	Short: "Initializes current directory as bit directory",
+	Long:  `Initializes current directory as bit directory`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		t := time.Now()
@@ -50,15 +50,15 @@ var initCmd = &cobra.Command{
 			return
 		}
 
-		// check if .lit directory already exists
-		litpath := filepath.Join(dir, ".lit")
+		// check if .bit directory already exists
+		litpath := filepath.Join(dir, ".bit")
 		err = util.DoesExists(litpath)
 		if err == nil {
-			fmt.Println("The directory is already lit 🔥")
+			fmt.Println("The directory is already bit 🔥")
 			return
 		}
 
-		// initialize that directory as lit directory
+		// initialize that directory as bit directory
 		done := core.Init(dir)
 		if done {
 			fmt.Println(args[0], "initialized as 🔥 directory")

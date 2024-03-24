@@ -19,14 +19,14 @@ import (
 
 func CreateBranch(pathToLit, branchname string) error {
 	// create file in logs/refs/heads/ folder
-	branch_logfile_path := filepath.Join(pathToLit, "/.lit/logs/refs/heads/"+branchname)
+	branch_logfile_path := filepath.Join(pathToLit, "/.bit/logs/refs/heads/"+branchname)
 	file, err := os.Create(branch_logfile_path)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 	// create file in refs/heads/ folder
-	branch_reffile_path := filepath.Join(pathToLit, "/.lit/refs/heads/"+branchname)
+	branch_reffile_path := filepath.Join(pathToLit, "/.bit/refs/heads/"+branchname)
 	file, err = os.Create(branch_reffile_path)
 	if err != nil {
 		return err
@@ -37,7 +37,7 @@ func CreateBranch(pathToLit, branchname string) error {
 
 func CurrentActiveBranch(pathToLit string) (string, error) {
 	// get current active branch
-	HEAD_file_path := filepath.Join(pathToLit, "/.lit/HEAD")
+	HEAD_file_path := filepath.Join(pathToLit, "/.bit/HEAD")
 	data, err := os.ReadFile(HEAD_file_path)
 	if err != nil {
 		return "", err
@@ -50,13 +50,13 @@ func CurrentActiveBranch(pathToLit string) (string, error) {
 
 func ChangeActiveBranch(pathToLit, branchname string) error {
 
-	HEAD_file_path := filepath.Join(pathToLit, "/.lit/HEAD")
-	logs_HEAD_file_path := filepath.Join(pathToLit, "/.lit/logs/HEAD")
+	HEAD_file_path := filepath.Join(pathToLit, "/.bit/HEAD")
+	logs_HEAD_file_path := filepath.Join(pathToLit, "/.bit/logs/HEAD")
 
 	prev_active_branch, err := CurrentActiveBranch(pathToLit)
 
-	prev_active_branch_path := filepath.Join(pathToLit, "/.lit/refs/heads/"+prev_active_branch)
-	current_active_branch_path := filepath.Join(pathToLit, "/.lit/refs/heads/"+branchname)
+	prev_active_branch_path := filepath.Join(pathToLit, "/.bit/refs/heads/"+prev_active_branch)
+	current_active_branch_path := filepath.Join(pathToLit, "/.bit/refs/heads/"+branchname)
 
 	if err != nil {
 		return err
@@ -119,7 +119,7 @@ func LogsBranchChange(logFilePath, msg string) error {
 func ListBranches(pathToLit string) error {
 	var branches []string
 
-	refs_file_path := filepath.Join(pathToLit, "/.lit/refs/heads")
+	refs_file_path := filepath.Join(pathToLit, "/.bit/refs/heads")
 
 	// get all branches
 	filepath.WalkDir(refs_file_path, func(path string, d fs.DirEntry, err error) error {
@@ -152,8 +152,8 @@ func ListBranches(pathToLit string) error {
 }
 
 func Checkout(PathToLit, BranchName string) {
-	branch_pointer_file_path := filepath.Join(PathToLit, "/.lit/refs/heads/"+BranchName)
-	index_file_path := filepath.Join(PathToLit, "./.lit/index")
+	branch_pointer_file_path := filepath.Join(PathToLit, "/.bit/refs/heads/"+BranchName)
+	index_file_path := filepath.Join(PathToLit, "./.bit/index")
 
 	// Get the commit id of the branch to checkout
 	commit_hash, err := os.ReadFile(branch_pointer_file_path)
@@ -174,7 +174,7 @@ func Checkout(PathToLit, BranchName string) {
 	}
 
 	// if commit object is present
-	commit_object_file_path := filepath.Join(PathToLit, "/.lit/objects/", string(commit_hash[:2])+"/"+string(commit_hash[2:]))
+	commit_object_file_path := filepath.Join(PathToLit, "/.bit/objects/", string(commit_hash[:2])+"/"+string(commit_hash[2:]))
 	commit_object_data, err := DecompressFile(commit_object_file_path)
 	first_line := strings.Split(commit_object_data, "\n")[0]
 	tree_object_hash := strings.Split(first_line, " ")[1]
@@ -211,7 +211,7 @@ func GenerateIndex(PathToLit, Tree_Object_Hash string) (map[string]FileInfo, err
 		val := TreeQueue.Dequeue()
 
 		// Decompress the tree object and get the info
-		main_tree_object_file_path := filepath.Join(PathToLit, "/.lit/objects/", string(val[:2])+"/"+string(val[2:]))
+		main_tree_object_file_path := filepath.Join(PathToLit, "/.bit/objects/", string(val[:2])+"/"+string(val[2:]))
 		Main_Tree, err := DecompressFile(main_tree_object_file_path)
 
 		if err != nil {
@@ -290,7 +290,7 @@ func Switch(dir string, currentB, newB map[string]FileInfo) error {
 		// }
 		fmt.Println("switch creating", v.FilePath)
 
-		inputFilePath := filepath.Join(dir, "/.lit/objects", string(v.SHA1[:2])+"/"+string(v.SHA1[2:]))
+		inputFilePath := filepath.Join(dir, "/.bit/objects", string(v.SHA1[:2])+"/"+string(v.SHA1[2:]))
 
 		fmt.Println(inputFilePath, v.FilePath)
 

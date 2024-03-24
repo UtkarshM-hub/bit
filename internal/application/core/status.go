@@ -74,7 +74,7 @@ func GetFilesStatus(dir string) []FileInfo {
 			return nil
 		}
 		if info.IsDir() {
-			if info.Name() == ".git" || info.Name() == ".lit" {
+			if info.Name() == ".git" || info.Name() == ".bit" {
 				return filepath.SkipDir
 			}
 			// fmt.Println("Directory:", info.Name())

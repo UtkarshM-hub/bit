@@ -23,12 +23,12 @@ var addCmd = &cobra.Command{
 			return
 		}
 
-		dir, err := util.FindDirectory(".lit")
+		dir, err := util.FindDirectory(".bit")
 		if err != nil {
 			fmt.Println(err.Error())
 			return
 		}
-		indexFilePath := filepath.Join(dir, "./.lit/index")
+		indexFilePath := filepath.Join(dir, "./.bit/index")
 
 		if args[0] == "." {
 			AllFiles := core.GetFilesStatus(dir)
