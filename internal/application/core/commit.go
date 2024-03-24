@@ -97,6 +97,12 @@ func Commit(commitMessage string) error {
 
 	for i, v := range mp {
 		currentFile := mp[v.FilePath]
+
+		// delete deleted file entries after commit
+		if v.FileStatus == "D" {
+			delete(mp, v.FilePath)
+			continue
+		}
 		currentFile.CommitStatus = "C"
 		mp[i] = currentFile
 	}
