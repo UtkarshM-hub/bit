@@ -31,14 +31,14 @@ var statusCmd = &cobra.Command{
 	Short: "shows status of working directory and staging area",
 	Long:  `shows status of working directory and staging area`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// find .lit directory
-		dir, err := util.FindDirectory(".lit")
+		// find .bit directory
+		dir, err := util.FindDirectory(".bit")
 		if err != nil {
 			fmt.Println(err.Error())
 			return
 		}
 
-		indexFilePath := filepath.Join(dir, "./.lit/index")
+		indexFilePath := filepath.Join(dir, "./.bit/index")
 
 		files := core.GetFilesStatus(dir)
 
@@ -62,7 +62,7 @@ var statusCmd = &cobra.Command{
 		// fmt.Println("Your branch is up to date with '<origin>/<branch name>'.")
 		if len(tracked) > 0 {
 			fmt.Printf("\nChanges to be committed:\n")
-			fmt.Printf("  (use 'lit restore --staged <file>...' to unstage)\n")
+			fmt.Printf("  (use 'bit restore --staged <file>...' to unstage)\n")
 			for _, v := range tracked {
 				fileP := strings.Replace(v.FilePath, dir+"/", "", -1)
 				color.Green.Printf("\t%v:    %v\n", statusMp[v.FileStatus], fileP)
@@ -72,8 +72,8 @@ var statusCmd = &cobra.Command{
 		// modified and deleted
 		if len(modified) > 0 || len(deleted) > 0 {
 			fmt.Printf("\nChanges not staged for commit:")
-			fmt.Printf("\n   (use 'lit add/rm <file>...' to update what will be committed)")
-			fmt.Printf("\n   (use 'lit restore <file>...' to discard changes in working directory)")
+			fmt.Printf("\n   (use 'bit add/rm <file>...' to update what will be committed)")
+			fmt.Printf("\n   (use 'bit restore <file>...' to discard changes in working directory)")
 		}
 		if len(modified) > 0 {
 
@@ -93,7 +93,7 @@ var statusCmd = &cobra.Command{
 		// Untracked files
 		if len(untracked) > 0 {
 			fmt.Printf("\nUntracked files:")
-			fmt.Printf("  (use 'lit add <file>...' to include in what will be committed)")
+			fmt.Printf("  (use 'bit add <file>...' to include in what will be committed)")
 			for _, v := range untracked {
 				fileP := strings.Replace(v.FilePath, dir+"/", "", -1)
 				color.Red.Printf("\n\tnew file:    %v", fileP)

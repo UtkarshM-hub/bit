@@ -24,7 +24,7 @@ type TreeInfo struct {
 
 func Commit(commitMessage string) error {
 	// Get index file path
-	dir, err := util.FindDirectory(".lit")
+	dir, err := util.FindDirectory(".bit")
 	if err != nil {
 		return nil
 	}
@@ -35,16 +35,16 @@ func Commit(commitMessage string) error {
 		return err
 	}
 
-	indexFilePath := filepath.Join(dir, "./.lit/index")
+	indexFilePath := filepath.Join(dir, "./.bit/index")
 
 	// take content and append
-	logsHEAD_Append := filepath.Join(dir, "./.lit/logs/HEAD")
-	logsFilePath := filepath.Join(dir, "./.lit/logs/refs/heads")
+	logsHEAD_Append := filepath.Join(dir, "./.bit/logs/HEAD")
+	logsFilePath := filepath.Join(dir, "./.bit/logs/refs/heads")
 
 	// Replace the file content
-	refsFilePath := filepath.Join(dir, "./.lit/refs/heads")
+	refsFilePath := filepath.Join(dir, "./.bit/refs/heads")
 
-	objectFilePath := filepath.Join(dir, "./.lit/objects")
+	objectFilePath := filepath.Join(dir, "./.bit/objects")
 	actualPath := filepath.Join(dir, "/")
 
 	mp := GetIndexFileContent(indexFilePath)
@@ -171,7 +171,7 @@ func compressCommitContent(filename string, content []byte, outputFilePath strin
 func createTreeObj(dirContent []TreeInfo, path, dirName string) (TreeInfo, error) {
 	splitted := strings.Split(dirName, "/")
 	directoryName := splitted[len(splitted)-1]
-	objectFilePath := filepath.Join(path, "./.lit/objects")
+	objectFilePath := filepath.Join(path, "./.bit/objects")
 
 	var fileContent []string
 
@@ -215,7 +215,7 @@ func GetTree(indexFile *map[string]FileInfo, mainDir, dir string) (TreeInfo, err
 		}
 
 		if info.IsDir() {
-			if info.Name() == ".git" || info.Name() == ".lit" {
+			if info.Name() == ".git" || info.Name() == ".bit" {
 				return filepath.SkipDir
 			}
 

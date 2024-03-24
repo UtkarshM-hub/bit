@@ -89,8 +89,8 @@ func createNewObject(status string, newmp *map[string]FileInfo, files []FileInfo
 
 func CoreAdd(path string, untracked, modified, deleted []FileInfo) {
 
-	objectFilePath := filepath.Join(path, "./.lit/objects")
-	indexFilePath := filepath.Join(path, "./.lit/index")
+	objectFilePath := filepath.Join(path, "./.bit/objects")
+	indexFilePath := filepath.Join(path, "./.bit/index")
 
 	mp := GetIndexFileContent(indexFilePath)
 

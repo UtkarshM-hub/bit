@@ -26,7 +26,7 @@ var branchCmd = &cobra.Command{
 			return
 		}
 		
-		dir, err := util.FindDirectory(".lit")
+		dir, err := util.FindDirectory(".bit")
 		if err != nil {
 			fmt.Println(err.Error())
 			return
@@ -39,10 +39,10 @@ var branchCmd = &cobra.Command{
 
 		branchName := args[0]
 
-		// indexFilePath := filepath.Join(dir, "./.lit/index")
+		// indexFilePath := filepath.Join(dir, "./.bit/index")
 
 		// check if branch already exist or not
-		branch_refFile_Path := filepath.Join(dir, "/.lit/refs/heads/"+branchName)
+		branch_refFile_Path := filepath.Join(dir, "/.bit/refs/heads/"+branchName)
 
 		err = util.DoesExists(branch_refFile_Path)
 		if err == nil {

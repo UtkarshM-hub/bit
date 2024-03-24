@@ -7,10 +7,10 @@ import (
 	"sync"
 )
 
-// initializes the directory as lit directory
+// initializes the directory as bit directory
 func Init(path string) bool {
 	var wg sync.WaitGroup
-	litPath := filepath.Join(path, ".lit")
+	litPath := filepath.Join(path, ".bit")
 
 	// Create the directory with 0700 permissions (read, write, execute for the owner only)
 	// 4=read 2=write 1=execute=7
@@ -48,7 +48,7 @@ func Init(path string) bool {
 	}(subfiles)
 
 	wg.Wait()
-	// Create file in .lit folder
+	// Create file in .bit folder
 	files:=[]string{"config","description","HEAD","index","packed-refs","/refs/heads/master","/logs/refs/heads/master"}
 	for _,v:=range files{
 		fileName:=filepath.Join(litPath,v)

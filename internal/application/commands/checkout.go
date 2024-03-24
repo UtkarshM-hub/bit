@@ -26,15 +26,15 @@ var checkoutCmd = &cobra.Command{
 
 		branchName := args[0]
 
-		dir, err := util.FindDirectory(".lit")
+		dir, err := util.FindDirectory(".bit")
 		if err != nil {
 			fmt.Println(err.Error())
 			return
 		}
-		// indexFilePath := filepath.Join(dir, "./.lit/index")
+		// indexFilePath := filepath.Join(dir, "./.bit/index")
 
 		// check if branch already exist or not
-		branch_refFile_Path := filepath.Join(dir, "/.lit/refs/heads/"+branchName)
+		branch_refFile_Path := filepath.Join(dir, "/.bit/refs/heads/"+branchName)
 
 		err = util.DoesExists(branch_refFile_Path)
 		if err != nil {
@@ -43,7 +43,7 @@ var checkoutCmd = &cobra.Command{
 		}
 
 		// prevent user from switching branch if current branch containers changes to be stages
-		indexFilePath := filepath.Join(dir, "./.lit/index")
+		indexFilePath := filepath.Join(dir, "./.bit/index")
 
 		files := core.GetFilesStatus(dir)
 
