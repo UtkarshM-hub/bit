@@ -23,6 +23,7 @@
 ## .bit unfolded
 
 information about the files and directories which are being used to implement current features
+![Pasted image](https://github.com/UtkarshM-hub/Bit/assets/70505181/7acac61e-6e10-4520-af0a-2521d182a583)
 
 1. <b>HEAD:</b>
 
