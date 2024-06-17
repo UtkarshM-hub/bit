@@ -5,14 +5,14 @@
 
 - initialize the given directory as bit directory
 
-<b>expected working:</b>
+<b>Understand the command:</b>
 
 - User should be able to initialize the directory as bit, which they will provide while using the init command
 
 
         bit init <"." or "directory_name">  
 
-<b>approach:</b>
+<b>Think about it:</b>
 
 - Get the location of directory from the argument to initialize it as bit repository
 - Check if that directory exists or not
