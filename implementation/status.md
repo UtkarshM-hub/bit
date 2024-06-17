@@ -4,6 +4,11 @@
 provides an overview of the current state of the working directory and staging area. It shows which changes have been staged, which haven't, and which files aren't being tracked by Git
 
 ## Understanding the command
+
+    git status
+
+![3893b9b5-5822-4724-b5a3-5865edf9597e](https://github.com/UtkarshM-hub/Bit/assets/70505181/32b84c65-631a-4d4f-ac82-3657711452c4)
+
 - it is basically showing us the 
 
     - files which are untracked
