@@ -27,6 +27,9 @@ func GetIndexFileContent(path string) map[string]FileInfo {
 	mp := make(map[string]FileInfo)
 
 	file, err := os.Open(path)
+	if err != nil {
+		fmt.Println(err)
+	}
 	defer file.Close()
 
 	// Get the data only if index file exist
@@ -41,8 +44,7 @@ func GetIndexFileContent(path string) map[string]FileInfo {
 
 			// util.go 2024-01-01 17:15:46.925855171 +0530 IST 1447 420 7baf657637a5c914f4e37cff2974941a5938ef9b /home/utkarsh/The Futher/UtkarshM-hub/Lit/internal/application/core/util/util.go N
 
-			// fmt.Printf("Name: %v\n Time: %v %v %v %v\nSize: %v\nPerm: %v\nSHA1: %v\nPath: %v\n",fields[0],fields[1],fields[2],fields[3],fields[4],fields[5],fields[6],fields[7],fields[8])
-
+			// replace || with space in filepath
 			key := strings.Replace(fields[8], "||", " ", -1)
 
 			T, _ := time.Parse(timeLayout, fields[1]+" "+fields[2]+" "+fields[3]+" "+fields[4])
@@ -68,6 +70,8 @@ func GetIndexFileContent(path string) map[string]FileInfo {
 
 func GetFilesStatus(dir string) []FileInfo {
 	var files []FileInfo
+
+	// walk over the directory and get all the information about files
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			fmt.Println(err)
@@ -91,10 +95,16 @@ func GetFilesStatus(dir string) []FileInfo {
 		permissions := uint32(os.ModePerm) & uint32(stat.Mode)
 		modifiedTime := info.ModTime()
 
-		// fmt.Println(path,modifiedTime)
-
-		// STORE ENTIES IN SORTED ORDER
-		files = append(files, FileInfo{FileName: info.Name(), FilePath: path, FileSize: uint64(info.Size()), FilePerm: permissions, FileModifiedAt: modifiedTime, SHA1: "", FileStatus: "N", CommitStatus: "c"})
+		files = append(files, FileInfo{
+			FileName:       info.Name(),
+			FilePath:       path,
+			FileSize:       uint64(info.Size()),
+			FilePerm:       permissions,
+			FileModifiedAt: modifiedTime,
+			SHA1:           "",  // initially no values assigned
+			FileStatus:     "N", // initially file is considered as new (N is used to represent new)
+			CommitStatus:   "c", // initially small c represents un-commited files
+		})
 
 		return nil
 	})
@@ -105,9 +115,10 @@ func GetFilesStatus(dir string) []FileInfo {
 	return files
 }
 
-// Get the slice of modified, deleted and unracked files
+// Get the slice of tracked, modified, deleted and unracked files
+// It takes the information about files in current director with index filepath
 func GetStatus(files []FileInfo, path string) ([]FileInfo, []FileInfo, []FileInfo, []FileInfo, error) {
-	// create three arrays
+	// create four slices
 	var untracked []FileInfo
 	var modified []FileInfo
 	var deleted []FileInfo
@@ -124,17 +135,21 @@ func GetStatus(files []FileInfo, path string) ([]FileInfo, []FileInfo, []FileInf
 		}
 
 		// check time
+		// if it is not commited then show it as tracked file
 		if currentF.FileModifiedAt.Equal(v.FileModifiedAt) && currentF.CommitStatus != "C" {
 			// In v all the values have status as 'N' so we'll have to take currentF
 			tracked = append(tracked, currentF)
 			delete(mp, v.FilePath)
 			continue
 		}
+
+		// After commiting it should not show as tracked instead we want to show that the current directory is clean
 		if currentF.FileModifiedAt.Equal(v.FileModifiedAt) && currentF.CommitStatus == "C" {
 			delete(mp, v.FilePath)
 			continue
 		}
 
+		// if time is different but we have to check the content itself inorder to  determine if the file is changed or not
 		// check hash value
 		content, err := os.ReadFile(v.FilePath)
 		if err != nil {
@@ -148,12 +163,15 @@ func GetStatus(files []FileInfo, path string) ([]FileInfo, []FileInfo, []FileInf
 		// Find sha1 hash of the header+content
 		sha1HashWD := calculateSHA1(header + string(content))
 
+		// if hash matches and not commited which means the content is not modified
+		// but as it is not commited then it goes into tracked files
 		if sha1HashWD == currentF.SHA1 && currentF.CommitStatus != "C" {
 			tracked = append(tracked, currentF)
 			delete(mp, v.FilePath)
 			continue
 		}
 
+		// If the file is commited it should not be included in the file result to show the clean working tree
 		if sha1HashWD == currentF.SHA1 && currentF.CommitStatus == "C" {
 			delete(mp, v.FilePath)
 			continue
@@ -172,10 +190,13 @@ func GetStatus(files []FileInfo, path string) ([]FileInfo, []FileInfo, []FileInf
 
 	// Get deleted
 	for _, val := range mp {
+		// remove those files which are deleted and are tracked or marked as deleted in index file
 		if val.FileStatus == "D" {
 			tracked = append(tracked, val)
 			continue
 		}
+
+		// if not marked then include in deleted slice
 		deleted = append(deleted, val)
 	}
 	// fmt.Println("-----")
