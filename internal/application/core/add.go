@@ -12,6 +12,7 @@ import (
 	"strings"
 )
 
+// compress and write the file to /objects directory
 func compressFile(filename, inputFilePath, outputFilePath string) error {
 
 	err := os.MkdirAll(outputFilePath, os.ModePerm)
@@ -58,7 +59,11 @@ func calculateSHA1(input string) string {
 	return hashString
 }
 
+// Create object file for the files and change the status
+// It takes status to be applied, index file (present in map), files on which the changes are going to be applied
+// object file path (where the object is going to be stored)
 func createNewObject(status string, newmp *map[string]FileInfo, files []FileInfo, objectFilePath string) {
+	// iterate over the files which we want to add in the staging area
 	for _, v := range files {
 		// Get File Content
 		content, err := os.ReadFile(v.FilePath)
@@ -75,18 +80,25 @@ func createNewObject(status string, newmp *map[string]FileInfo, files []FileInfo
 
 		outputFilePath := objectFilePath + "/" + sha1Hash[:2]
 
+		// compress and write it to the /objects directory with first 2 characters as directory name and remaining as file name
 		err = compressFile(sha1Hash[2:], v.FilePath, outputFilePath)
 		if err != nil {
 			fmt.Println(err.Error())
 			return
 		}
 
+		// change the information accordingly
 		v.SHA1 = sha1Hash
 		v.FileStatus = status
+
+		// modify the changes in the index file map
 		(*newmp)[v.FilePath] = v
 	}
 }
 
+// takes current file information from status command and writes it to the index file 
+// resulting into moving those files into staging area
+// takes root directory filepath and fileinfo
 func CoreAdd(path string, untracked, modified, deleted []FileInfo) {
 
 	objectFilePath := filepath.Join(path, "./.bit/objects")
@@ -106,12 +118,12 @@ func CoreAdd(path string, untracked, modified, deleted []FileInfo) {
 		mp[v.FilePath] = currentStruct
 	}
 
-	// Loop over the untracked data and store it in compressed format
-
+	// write the changed data to index which will be new state of index file
 	writeToIndex(mp, indexFilePath)
 
 }
 
+// write the changed index file content to index file
 func writeToIndex(mp map[string]FileInfo, path string) {
 
 	// fmt.Println(Data)

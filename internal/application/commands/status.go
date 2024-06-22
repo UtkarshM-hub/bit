@@ -40,6 +40,7 @@ var statusCmd = &cobra.Command{
 
 		indexFilePath := filepath.Join(dir, "./.bit/index")
 
+		// Get information about all the files in current directory
 		files := core.GetFilesStatus(dir)
 
 		tracked, untracked, modified, deleted, err := core.GetStatus(files, indexFilePath)

@@ -54,14 +54,14 @@ var initCmd = &cobra.Command{
 		litpath := filepath.Join(dir, ".bit")
 		err = util.DoesExists(litpath)
 		if err == nil {
-			fmt.Println("The directory is already bit 🔥")
+			fmt.Println("The directory is already bit")
 			return
 		}
 
 		// initialize that directory as bit directory
 		done := core.Init(dir)
 		if done {
-			fmt.Println(args[0], "initialized as 🔥 directory")
+			fmt.Println(args[0], "initialized as bit directory")
 		}
 		fmt.Println(dir, done, time.Since(t))
 	},
