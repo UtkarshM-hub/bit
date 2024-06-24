@@ -46,7 +46,7 @@ var branchCmd = &cobra.Command{
 
 		err = util.DoesExists(branch_refFile_Path)
 		if err == nil {
-			fmt.Println("The branch you want to create is already 🔥")
+			fmt.Println("Branch already exists")
 			return
 		}
 

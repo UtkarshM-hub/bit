@@ -17,6 +17,7 @@ import (
 	color "github.com/gookit/color"
 )
 
+// Function to create new branch
 func CreateBranch(pathToLit, branchname string) error {
 	// create file in logs/refs/heads/ folder
 	branch_logfile_path := filepath.Join(pathToLit, "/.bit/logs/refs/heads/"+branchname)
@@ -25,6 +26,7 @@ func CreateBranch(pathToLit, branchname string) error {
 		return err
 	}
 	defer file.Close()
+
 	// create file in refs/heads/ folder
 	branch_reffile_path := filepath.Join(pathToLit, "/.bit/refs/heads/"+branchname)
 	file, err = os.Create(branch_reffile_path)
@@ -35,6 +37,7 @@ func CreateBranch(pathToLit, branchname string) error {
 	return nil
 }
 
+// Function which returns the current active branch
 func CurrentActiveBranch(pathToLit string) (string, error) {
 	// get current active branch
 	HEAD_file_path := filepath.Join(pathToLit, "/.bit/HEAD")
@@ -46,6 +49,100 @@ func CurrentActiveBranch(pathToLit string) (string, error) {
 	data_arr := strings.Split(string(data), "/")
 	current_active_branch := data_arr[len(data_arr)-1]
 	return current_active_branch, nil
+}
+
+// List all the branches and show the current active branch
+func ListBranches(pathToLit string) error {
+	var branches []string
+
+	refs_file_path := filepath.Join(pathToLit, "/.bit/refs/heads")
+
+	// get all branches
+	filepath.WalkDir(refs_file_path, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
+		if !d.IsDir() {
+			branches = append(branches, d.Name())
+		}
+		return nil
+	})
+
+	current_active_branch, err := CurrentActiveBranch(pathToLit)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	// print to terminal
+	for _, v := range branches {
+		if v == current_active_branch {
+			color.Green.Printf("* %v\n", v)
+			continue
+		}
+		fmt.Printf("  %v\n", v)
+	}
+	return nil
+}
+
+// Perform checkout operation to switch to other branch
+func Checkout(PathToLit, BranchName string) {
+	branch_pointer_file_path := filepath.Join(PathToLit, "/.bit/refs/heads/"+BranchName)
+	index_file_path := filepath.Join(PathToLit, "./.bit/index")
+
+	// Get the commit id of the branch to checkout
+	commit_hash, err := os.ReadFile(branch_pointer_file_path)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// if branch is new and there is no commit object present
+	// Change only the necessary info if the branch is new
+	// No need to perform deletion and all
+	if len(commit_hash) == 0 {
+		fmt.Println("empty")
+		// change active branch
+		err = ChangeActiveBranch(PathToLit, BranchName)
+		if err != nil {
+			fmt.Println(err)
+		}
+		return
+	}
+
+	// if commit object is present
+	// we will have to perform necessary creation and deletion of files accordingly
+
+	// Get the hash value of tree object so that we can build an index out of it
+	commit_object_file_path := filepath.Join(PathToLit, "/.bit/objects/", string(commit_hash[:2])+"/"+string(commit_hash[2:]))
+	commit_object_data, _ := DecompressFile(commit_object_file_path)
+	first_line := strings.Split(commit_object_data, "\n")[0]
+	tree_object_hash := strings.Split(first_line, " ")[1]
+
+	// Build new index for the specific branch
+	New_Branch_Index, err := GenerateIndex(PathToLit, tree_object_hash)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Get the content of current index file
+	Current_Branch_Index := GetIndexFileContent(index_file_path)
+
+	// Write the new index file content to index file
+	writeToIndex(New_Branch_Index, index_file_path)
+
+	// Do the switching operation (creation and deltion of files)
+	Switch(PathToLit, Current_Branch_Index, New_Branch_Index)
+
+	err = ChangeActiveBranch(PathToLit, BranchName)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// After switching branches remove these ghost directories which contains no files
+	DeleteEmptyDir(PathToLit)
 }
 
 func ChangeActiveBranch(pathToLit, branchname string) error {
@@ -116,88 +213,6 @@ func LogsBranchChange(logFilePath, msg string) error {
 	return nil
 }
 
-func ListBranches(pathToLit string) error {
-	var branches []string
-
-	refs_file_path := filepath.Join(pathToLit, "/.bit/refs/heads")
-
-	// get all branches
-	filepath.WalkDir(refs_file_path, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			fmt.Println(err)
-			return err
-		}
-
-		if !d.IsDir() {
-			branches = append(branches, d.Name())
-		}
-		return nil
-	})
-
-	current_active_branch, err := CurrentActiveBranch(pathToLit)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-
-	// print to terminal
-	for _, v := range branches {
-		if v == current_active_branch {
-			color.Green.Printf("* %v\n", v)
-			continue
-		}
-		fmt.Printf("  %v\n", v)
-	}
-	return nil
-}
-
-func Checkout(PathToLit, BranchName string) {
-	branch_pointer_file_path := filepath.Join(PathToLit, "/.bit/refs/heads/"+BranchName)
-	index_file_path := filepath.Join(PathToLit, "./.bit/index")
-
-	// Get the commit id of the branch to checkout
-	commit_hash, err := os.ReadFile(branch_pointer_file_path)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// if branch is new and there is no commit object present
-	// Change only the necessary info if the branch is new
-	if len(commit_hash) == 0 {
-		fmt.Println("empty")
-		// change active branch
-		err = ChangeActiveBranch(PathToLit, BranchName)
-		if err != nil {
-			fmt.Println(err)
-		}
-		return
-	}
-
-	// if commit object is present
-	commit_object_file_path := filepath.Join(PathToLit, "/.bit/objects/", string(commit_hash[:2])+"/"+string(commit_hash[2:]))
-	commit_object_data, err := DecompressFile(commit_object_file_path)
-	first_line := strings.Split(commit_object_data, "\n")[0]
-	tree_object_hash := strings.Split(first_line, " ")[1]
-
-	New_Branch_Index, err := GenerateIndex(PathToLit, tree_object_hash)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-
-	Current_Branch_Index := GetIndexFileContent(index_file_path)
-
-	writeToIndex(New_Branch_Index, index_file_path)
-	Switch(PathToLit, Current_Branch_Index, New_Branch_Index)
-
-	err = ChangeActiveBranch(PathToLit, BranchName)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	DeleteEmptyDir(PathToLit)
-}
-
 // generate index file for the new branch
 func GenerateIndex(PathToLit, Tree_Object_Hash string) (map[string]FileInfo, error) {
 	TreeQueue := Queue.Queue{}
@@ -253,14 +268,18 @@ func GenerateIndex(PathToLit, Tree_Object_Hash string) (map[string]FileInfo, err
 	return New_Branch_Index, nil
 }
 
+// Performs actual switching operation of branch command
 func Switch(dir string, currentB, newB map[string]FileInfo) error {
 	fmt.Println("switch start")
+
+	// Loop over new Branch
 	for _, v := range newB {
-		// skip if file already exists and hash value is same
 		fileInfo, exists := currentB[v.FilePath]
 		fmt.Println("switch mid", v.FilePath)
+
 		if exists {
 			delete(currentB, v.FilePath)
+			// skip if file already exists and hash value is same
 			if fileInfo.SHA1 == v.SHA1 {
 				fmt.Println("switch cont", v.FilePath)
 				delete(newB, v.FilePath)
@@ -276,7 +295,7 @@ func Switch(dir string, currentB, newB map[string]FileInfo) error {
 			}
 		}
 
-		// create folder if it doesn't exists
+		// create folder if it doesn't exists, in-order to create file at that specific path
 		DirectoyPath := filepath.Dir(v.FilePath)
 		err := util.DoesExists(DirectoyPath)
 		if err != nil {
@@ -288,6 +307,8 @@ func Switch(dir string, currentB, newB map[string]FileInfo) error {
 
 		fmt.Println("switch creating", v.FilePath)
 
+		// Now as we have our directory structure for the current file setup
+		// we can proceed to create the file by decompressing it and storing it at a particular location
 		inputFilePath := filepath.Join(dir, "/.bit/objects", string(v.SHA1[:2])+"/"+string(v.SHA1[2:]))
 
 		fmt.Println(inputFilePath, v.FilePath)
@@ -298,9 +319,10 @@ func Switch(dir string, currentB, newB map[string]FileInfo) error {
 			fmt.Println("this is it", err.Error())
 		}
 		delete(newB, v.FilePath)
-
 	}
 
+	// Remove the remaining files which were present in previous branch
+	//  as they don't belong to the current branch
 	for _, v := range currentB {
 		err := os.Remove(v.FilePath)
 		if err != nil {
@@ -343,7 +365,7 @@ func DecompressFile(inputFilePath string) (string, error) {
 	// 	return err
 	// }
 
-	return string(decompressedBuffer.Bytes()), nil
+	return string(decompressedBuffer.String()), nil
 }
 
 func DecompressAndSaveFile(inputFilePath, outputFilePath string) error {
@@ -381,28 +403,28 @@ func DecompressAndSaveFile(inputFilePath, outputFilePath string) error {
 	return nil
 }
 
-func DeleteEmptyDir(rootDir string){
+func DeleteEmptyDir(rootDir string) {
 	err := filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
-        if err != nil {
-            return err
-        }
-        if info.IsDir() {
-            isEmpty, err := util.ISDirectoryEmpty(path)
-            if err != nil {
-                return err
-            }
-            if isEmpty {
-                fmt.Printf("Deleting empty directory: %s\n", path)
-                err := os.Remove(path)
-                if err != nil {
-                    return err
-                }
-            }
-        }
-        return nil
-    })
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			isEmpty, err := util.ISDirectoryEmpty(path)
+			if err != nil {
+				return err
+			}
+			if isEmpty {
+				fmt.Printf("Deleting empty directory: %s\n", path)
+				err := os.Remove(path)
+				if err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	})
 
-    if err != nil {
-        fmt.Println("Error:", err)
-    }
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
 }
