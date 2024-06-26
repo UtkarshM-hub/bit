@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/UtkarshM-hub/Lit/internal/application/core"
-	util "github.com/UtkarshM-hub/Lit/internal/application/core/util"
+	"github.com/UtkarshM-hub/bit/internal/application/core"
+	util "github.com/UtkarshM-hub/bit/internal/application/core/util"
 	color "github.com/gookit/color"
 	"github.com/spf13/cobra"
 )

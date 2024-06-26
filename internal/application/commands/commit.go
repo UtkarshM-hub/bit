@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/UtkarshM-hub/Lit/internal/application/core"
-	"github.com/UtkarshM-hub/Lit/internal/application/core/util"
+	"github.com/UtkarshM-hub/bit/internal/application/core"
+	"github.com/UtkarshM-hub/bit/internal/application/core/util"
 	"github.com/gookit/color"
 	"github.com/spf13/cobra"
 )
@@ -45,7 +45,7 @@ var commitCmd = &cobra.Command{
 			return
 		}
 
-		err = core.Commit(commitMessage,dir)
+		err = core.Commit(commitMessage, dir)
 		if err != nil {
 			fmt.Println(err.Error())
 			return

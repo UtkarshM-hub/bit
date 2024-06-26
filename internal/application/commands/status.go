@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	core "github.com/UtkarshM-hub/Lit/internal/application/core"
+	core "github.com/UtkarshM-hub/bit/internal/application/core"
 
-	util "github.com/UtkarshM-hub/Lit/internal/application/core/util"
+	util "github.com/UtkarshM-hub/bit/internal/application/core/util"
 	color "github.com/gookit/color"
 	"github.com/spf13/cobra"
 )

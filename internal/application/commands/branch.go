@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/UtkarshM-hub/Lit/internal/application/core"
-	util "github.com/UtkarshM-hub/Lit/internal/application/core/util"
+	"github.com/UtkarshM-hub/bit/internal/application/core"
+	util "github.com/UtkarshM-hub/bit/internal/application/core/util"
 	"github.com/spf13/cobra"
 )
 
@@ -25,14 +25,14 @@ var branchCmd = &cobra.Command{
 			fmt.Println("Arguments not provided")
 			return
 		}
-		
+
 		dir, err := util.FindDirectory(".bit")
 		if err != nil {
 			fmt.Println(err.Error())
 			return
 		}
-		
-		if list_branches{
+
+		if list_branches {
 			core.ListBranches(dir)
 			return
 		}
@@ -50,8 +50,8 @@ var branchCmd = &cobra.Command{
 			return
 		}
 
-		err=core.CreateBranch(dir,branchName)	
-		if err!=nil{
+		err = core.CreateBranch(dir, branchName)
+		if err != nil {
 			fmt.Println("Error occured while creating branch")
 		}
 	},

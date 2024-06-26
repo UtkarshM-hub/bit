@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"time"
 
-	core "github.com/UtkarshM-hub/Lit/internal/application/core"
-	util "github.com/UtkarshM-hub/Lit/internal/application/core/util"
+	core "github.com/UtkarshM-hub/bit/internal/application/core"
+	util "github.com/UtkarshM-hub/bit/internal/application/core/util"
 	"github.com/spf13/cobra"
 )
 

@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	Queue "github.com/UtkarshM-hub/Lit/internal/application/core/Structs/Queue"
-	"github.com/UtkarshM-hub/Lit/internal/application/core/util"
+	Queue "github.com/UtkarshM-hub/bit/internal/application/core/Structs/Queue"
+	"github.com/UtkarshM-hub/bit/internal/application/core/util"
 	color "github.com/gookit/color"
 )
 

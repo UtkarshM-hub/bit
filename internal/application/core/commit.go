@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/UtkarshM-hub/Lit/internal/application/core/util"
+	"github.com/UtkarshM-hub/bit/internal/application/core/util"
 )
 
 type TreeInfo struct {
