@@ -1,5 +1,37 @@
-# Bit
 ![Frame 4](https://github.com/UtkarshM-hub/Bit/assets/70505181/cca9fc7f-c9dd-42c0-83e7-0b4a6a4fe9f9)
+bit is a version control system inspired by Git. The main inspiration came from ['Pro Git'](https://git-scm.com/book/en/v2), a book by Scott Chacon (one of the co-founders of GitHub). The 'internals' section of the book provided insightful information about the internal workings of Git and has been a deciding factor in the development of the core workings of Bit.
+
+# Commands
+  1. init
+     initialize a directory as bit directory
+     
+         bit init .
+  2. status
+     check the status of current working directory and staging area
+
+         bit status
+  3. add
+     add files, changes to staging area inorder to make them ready to commit
+
+         bit add .
+
+      currently only feature of adding all the files is present, feature of adding and removing single file from staging area will be implemented soon
+  6. commit
+     commit the files in staging area
+
+         bit commit -m "<COMMIT_MSG>"
+  8. branch
+     create a branch
+
+         bit branch <BRANCH_NAME>
+
+     view branches or view active branch
+
+         bit branch -a
+  10. checkout
+      switch between branches
+
+          bit checkout <BRANCH_NAME>
 
 # Working of commands
 Following information provides just a bird's eye view of how commands are working and it is a bit simplified inorder to make it easy to understand.
