@@ -1,4 +1,4 @@
-module github.com/UtkarshM-hub/Lit
+module github.com/UtkarshM-hub/bit
 
 go 1.21.3
 
