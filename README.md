@@ -23,3 +23,8 @@ Following information provides just a bird's eye view of how commands are workin
 
 ## Branch command
 ![Branch 1](https://github.com/UtkarshM-hub/Bit/assets/70505181/798a256c-6b31-46ec-87b7-11342f05dba5)
+
+## Checkout command
+![Checkout 1](https://github.com/UtkarshM-hub/Bit/assets/70505181/01d4aafe-73b0-4e9e-bc82-a10ca1645ea4)
+![Checkout 2](https://github.com/UtkarshM-hub/Bit/assets/70505181/9aad07a1-c452-42a9-bfad-9ad35b971915)
+![Checkout 4](https://github.com/UtkarshM-hub/Bit/assets/70505181/4aca12c4-f9f2-4a6f-9cbe-b909c7fdf24e)
