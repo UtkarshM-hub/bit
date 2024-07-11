@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -141,8 +142,8 @@ func Checkout(PathToLit, BranchName string) {
 		fmt.Println(err)
 	}
 
-	// After switching branches remove these ghost directories which contains no files
-	DeleteEmptyDir(PathToLit)
+	// // After switching branches remove these ghost directories which contains no files
+	// DeleteEmptyDir(PathToLit)
 }
 
 func ChangeActiveBranch(pathToLit, branchname string) error {
@@ -328,6 +329,20 @@ func Switch(dir string, currentB, newB map[string]FileInfo) error {
 		if err != nil {
 			return err
 		}
+
+		parent := path.Dir(v.FilePath)
+
+		empty, err := util.ISDirectoryEmpty(parent)
+		if err != nil {
+			return err
+		}
+
+		if empty {
+			err = os.Remove(parent)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil
@@ -401,30 +416,4 @@ func DecompressAndSaveFile(inputFilePath, outputFilePath string) error {
 	}
 
 	return nil
-}
-
-func DeleteEmptyDir(rootDir string) {
-	err := filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			isEmpty, err := util.ISDirectoryEmpty(path)
-			if err != nil {
-				return err
-			}
-			if isEmpty {
-				fmt.Printf("Deleting empty directory: %s\n", path)
-				err := os.Remove(path)
-				if err != nil {
-					return err
-				}
-			}
-		}
-		return nil
-	})
-
-	if err != nil {
-		fmt.Println("Error:", err)
-	}
 }
