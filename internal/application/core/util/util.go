@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 )
 
+// get the pat of current directory
 func GetCurrentDirectory() (string, error) {
 	dir, err := os.Getwd()
 	if err != nil {
@@ -16,6 +17,7 @@ func GetCurrentDirectory() (string, error) {
 	return dir, nil
 }
 
+// join the path
 func GetJoinedPaths(relativePath string) (string, error) {
 	// Join the base path and relative path
 	basePath, err := GetCurrentDirectory()
@@ -33,12 +35,13 @@ func GetJoinedPaths(relativePath string) (string, error) {
 	return joinedPath, nil
 }
 
+// check if directory exists or not
 func DoesExists(path string) error {
 	_, err := os.Stat(path)
 
 	// Check if the error is a "not exists" error which means it doesn't exist
 	if os.IsNotExist(err) {
-		return errors.New("The directory does not exist")
+		return errors.New("the directory does not exist")
 	} else if err != nil {
 		// For other errors return the error
 		return err
@@ -47,6 +50,7 @@ func DoesExists(path string) error {
 	return nil
 }
 
+// Find the directory by moving towards parent
 func FindDirectory(targetDir string) (string, error) {
 	currentDir, err := os.Getwd() //get current working directory
 	if err != nil {
@@ -68,14 +72,16 @@ func FindDirectory(targetDir string) (string, error) {
 
 		currentDir = parentDir
 	}
-	return "", fmt.Errorf("Not a bit directory 🧯")
+	return "", fmt.Errorf("not a bit directory 🧯")
 }
 
+// read file and return the string data
 func ReadFile(filepath string) (string, error) {
 	data, err := os.ReadFile(filepath)
 	return string(data), err
 }
 
+// check if directory is empty
 func ISDirectoryEmpty(dirPath string) (bool, error) {
 	f, err := os.Open(dirPath)
 	if err != nil {
@@ -93,4 +99,19 @@ func ISDirectoryEmpty(dirPath string) (bool, error) {
 		return true, nil
 	}
 	return false, err
+}
+
+// remove folder with childrens
+func RemoveDirectories(paths []string) error {
+
+	for _, v := range paths {
+		if err := DoesExists(v); err != nil {
+			return fmt.Errorf("folder does not exists")
+		}
+		err := os.RemoveAll(v)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
