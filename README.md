@@ -3,24 +3,43 @@ bit is a version control system inspired by Git. The main inspiration came from 
 
 # Commands
   1. init
+     
      initialize a directory as bit directory
      
          bit init .
-  2. status
+  3. status
+     
      check the status of current working directory and staging area
 
          bit status
-  3. add
+  4. add
+     
      add files, changes to staging area inorder to make them ready to commit
+
+     to select all the files
 
          bit add .
 
-      currently only feature of adding all the files is present, feature of adding and removing single file from staging area will be implemented soon
-  6. commit
+     for single files
+     
+         bit add <filename>
+  5. rm
+     
+     remove files from staging area. currently only --cached flag is supported
+     to select all the files
+     
+         bit rm --cached .
+     
+     to select single files
+     
+         bit rm --cached <filename>
+  7. commit
+     
      commit the files in staging area
 
          bit commit -m "<COMMIT_MSG>"
-  8. branch
+  9. branch
+      
      create a branch
 
          bit branch <BRANCH_NAME>
@@ -28,7 +47,8 @@ bit is a version control system inspired by Git. The main inspiration came from 
      view branches or view active branch
 
          bit branch -a
-  10. checkout
+  11. checkout
+      
       switch between branches
 
           bit checkout <BRANCH_NAME>
