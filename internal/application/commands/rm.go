@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"log"
 	"path"
 
 	"github.com/UtkarshM-hub/bit/internal/application/core"
@@ -9,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
- var removeCached bool=false
+var removeCached bool = false
 
 func init() {
 	rootCmd.AddCommand(rmCmd)
@@ -36,25 +37,24 @@ var rmCmd = &cobra.Command{
 			return
 		}
 
-		if removeCached {
-			var Removables []string
-			if args[0] == "." {
-				// removing files from staging area
+		var Removables []string
+		if args[0] == "." {
+			// removing files from staging area
 
-			} else {
-				// removing specific files from staging area
-				for _, v := range args {
-					newPath := path.Join(dir, v)
-					Removables = append(Removables, newPath)
-				}
-			}
-
-			core.RemoveFilesFromStagingArea(dir, Removables)
 		} else {
-			fmt.Println("Functionlity is not added yet")
-			fmt.Println("you can use --cached flag to remove cached")
+			// removing specific files from staging area
+			for _, v := range args {
+				newPath := path.Join(dir, v)
+				Removables = append(Removables, newPath)
+			}
 		}
 
-		
+		core.RemoveFilesFromStagingArea(dir, Removables)
+		if !removeCached {
+			err=util.RemoveDirectories(Removables);
+			if err!=nil{
+				log.Fatal(err)
+			}
+		}
 	},
 }
