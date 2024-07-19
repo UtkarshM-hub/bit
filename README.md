@@ -25,14 +25,17 @@ bit is a version control system inspired by Git. The main inspiration came from 
          bit add <filename>
   5. rm
      
-     remove files from staging area. currently only --cached flag is supported
-     to select all the files
+     --cached is used to remove from just staging area
      
          bit rm --cached .
      
      to select single files
      
          bit rm --cached <filename>
+
+     to remove from both staging area and working directory use the following command
+
+         bit rm <filename>
   7. commit
      
      commit the files in staging area
