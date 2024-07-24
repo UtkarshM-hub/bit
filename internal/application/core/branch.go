@@ -92,6 +92,7 @@ func ListBranches(pathToLit string) error {
 func Checkout(PathToLit, BranchName string) {
 	branch_pointer_file_path := filepath.Join(PathToLit, "/.bit/refs/heads/"+BranchName)
 	index_file_path := filepath.Join(PathToLit, "./.bit/index")
+	past_file_path := filepath.Join(PathToLit, "./.bit/past")
 
 	// Get the commit id of the branch to checkout
 	commit_hash, err := os.ReadFile(branch_pointer_file_path)
@@ -133,6 +134,9 @@ func Checkout(PathToLit, BranchName string) {
 
 	// Write the new index file content to index file
 	writeToIndex(New_Branch_Index, index_file_path)
+	
+	// write the new index file content to past file
+	writeToIndex(New_Branch_Index, past_file_path)
 
 	// Do the switching operation (creation and deltion of files)
 	Switch(PathToLit, Current_Branch_Index, New_Branch_Index)

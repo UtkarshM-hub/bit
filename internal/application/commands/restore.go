@@ -10,17 +10,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var removeCached bool = false
+var staged bool
 
 func init() {
-	rootCmd.AddCommand(rmCmd)
-	rmCmd.Flags().BoolVar(&removeCached, "cached", false, "Used to specify the type of removal")
+	rootCmd.AddCommand(restoreCmd)
+	restoreCmd.Flags().BoolVar(&staged, "staged", false, "Used to specify type of restoration")
 }
 
-var rmCmd = &cobra.Command{
-	Use:   "rm",
-	Short: "removes files from staging area",
-	Long:  `removes files from staging area`,
+var restoreCmd = &cobra.Command{
+	Use:   "restore",
+	Short: "restore the file according to previous commit",
+	Long:  `restore the file to its previous state according to the previous commit object`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		// Currently expecting "." with the command
@@ -37,24 +37,23 @@ var rmCmd = &cobra.Command{
 			return
 		}
 
-		var Removables []string
+		var Restorable []string
 		if args[0] == "." {
 			// removing files from staging area
-
+			fmt.Println("Please specify the filename")
+			return
 		} else {
 			// removing specific files from staging area
 			for _, v := range args {
 				newPath := path.Join(dir, v)
-				Removables = append(Removables, newPath)
+				Restorable = append(Restorable, newPath)
 			}
 		}
 
-		core.RemoveFilesFromStagingArea(dir, Removables)
-		if !removeCached {
-			err=util.RemoveDirectories(Removables);
-			if err!=nil{
-				log.Fatal(err)
-			}
+		// restore the files either from staged or from previous commit
+		err = core.Restore(Restorable, dir, staged)
+		if err != nil {
+			log.Fatal(err)
 		}
 	},
 }
