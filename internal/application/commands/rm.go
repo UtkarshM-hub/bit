@@ -14,7 +14,7 @@ var removeCached bool = false
 
 func init() {
 	rootCmd.AddCommand(rmCmd)
-	rmCmd.Flags().BoolVar(&removeCached, "cached", false, "Used to assign message to commit")
+	rmCmd.Flags().BoolVar(&removeCached, "cached", false, "Used to specify the type of removal")
 }
 
 var rmCmd = &cobra.Command{
