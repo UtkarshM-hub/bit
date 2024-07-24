@@ -33,6 +33,13 @@ func Commit(commitMessage, pathToBitDirectory string) error {
 
 	indexFilePath := filepath.Join(pathToBitDirectory, "./.bit/index")
 
+	// past file to store the previous commit information
+	// while using restore command, information about previous state of the files
+	// should be accessible quickly instead of performing multiple I/Os (which is expensive operation) to 
+	// get the data by recursively decompressing the commit object
+
+	pastFilePath := filepath.Join(pathToBitDirectory, "./.bit/past")
+
 	// take content and append
 	logsHEAD_Append := filepath.Join(pathToBitDirectory, "./.bit/logs/HEAD")
 	logsFilePath := filepath.Join(pathToBitDirectory, "./.bit/logs/refs/heads")
@@ -107,6 +114,9 @@ func Commit(commitMessage, pathToBitDirectory string) error {
 
 	// write to index
 	writeToIndex(mp, indexFilePath)
+
+	// write to past
+	writeToIndex(mp, pastFilePath)
 
 	return nil
 }
