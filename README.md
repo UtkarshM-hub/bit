@@ -7,12 +7,12 @@ bit is a version control system inspired by Git. The main inspiration came from 
      initialize a directory as bit directory
      
          bit init .
-  3. status
+  2. status
      
      check the status of current working directory and staging area
 
          bit status
-  4. add
+  3. add
      
      add files, changes to staging area inorder to make them ready to commit
 
@@ -23,7 +23,7 @@ bit is a version control system inspired by Git. The main inspiration came from 
      for single files
      
          bit add <filename>
-  5. rm
+  4. rm
      
      --cached is used to remove from just staging area
      
@@ -36,12 +36,21 @@ bit is a version control system inspired by Git. The main inspiration came from 
      to remove from both staging area and working directory use the following command
 
          bit rm <filename>
+  5. Restore
+
+      restore the file from staging area to working directory
+
+          bit restore --staged <filename>
+
+       restore the file changes from previous commit descarding the current changes
+
+         bit restore <filename>
   7. commit
      
      commit the files in staging area
 
          bit commit -m "<COMMIT_MSG>"
-  9. branch
+  8. branch
       
      create a branch
 
@@ -50,7 +59,7 @@ bit is a version control system inspired by Git. The main inspiration came from 
      view branches or view active branch
 
          bit branch -a
-  11. checkout
+  9. checkout
       
       switch between branches
 
