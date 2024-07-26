@@ -3,7 +3,6 @@ package commands
 import (
 	"fmt"
 	"path/filepath"
-	"time"
 
 	core "github.com/UtkarshM-hub/bit/internal/application/core"
 	util "github.com/UtkarshM-hub/bit/internal/application/core/util"
@@ -19,8 +18,6 @@ var initCmd = &cobra.Command{
 	Short: "Initializes current directory as bit directory",
 	Long:  `Initializes current directory as bit directory`,
 	Run: func(cmd *cobra.Command, args []string) {
-
-		t := time.Now()
 		var dir string
 		var err error
 
@@ -63,6 +60,5 @@ var initCmd = &cobra.Command{
 		if done {
 			fmt.Println(args[0], "initialized as bit directory")
 		}
-		fmt.Println(dir, done, time.Since(t))
 	},
 }
