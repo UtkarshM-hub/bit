@@ -96,7 +96,7 @@ func createNewObject(status string, newmp *map[string]FileInfo, files []FileInfo
 	}
 }
 
-// takes current file information from status command and writes it to the index file
+// takes current file information from status command and writes it to the index file 
 // resulting into moving those files into staging area
 // takes root directory filepath and fileinfo
 func CoreAdd(path string, untracked, modified, deleted []FileInfo) {
@@ -130,6 +130,7 @@ func writeToIndex(mp map[string]FileInfo, path string) {
 
 	var rawData []string
 	for _, v := range mp {
+		fmt.Println(v.FilePath)
 		line := fmt.Sprintf("%v %v %v %v %v %v %v %v", v.FileName, v.FileModifiedAt, v.FileSize, v.FilePerm, v.SHA1, strings.Replace(v.FilePath, " ", "||", -1), v.FileStatus, v.CommitStatus)
 
 		// fmt.Printf("Name: %v\nPath: %v\nTime: %v\nPerm: %v\nSize: %v\nSHA1: %v\n\n", v.FileName, strings.Replace(v.FilePath," ","||",-1), v.FileModifiedAt, v.FilePerm, v.FileSize,v.SHA1)
