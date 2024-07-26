@@ -202,6 +202,9 @@ func createTreeObj(dirContent []TreeInfo, path, dirName string) (TreeInfo, error
 		fileContent = append(fileContent, line)
 	}
 	content := strings.Join(fileContent, "\n")
+	fmt.Println(dirName)
+	fmt.Println(content)
+	fmt.Println("--------------------------------------------")
 
 	// find SHA1
 	header := "tree" + " " + directoryName + "\\0"
