@@ -104,6 +104,7 @@ func Checkout(PathToLit, BranchName string) {
 	// Change only the necessary info if the branch is new
 	// No need to perform deletion and all
 	if len(commit_hash) == 0 {
+		fmt.Println("empty")
 		// change active branch
 		err = ChangeActiveBranch(PathToLit, BranchName)
 		if err != nil {
@@ -133,7 +134,7 @@ func Checkout(PathToLit, BranchName string) {
 
 	// Write the new index file content to index file
 	writeToIndex(New_Branch_Index, index_file_path)
-
+	
 	// write the new index file content to past file
 	writeToIndex(New_Branch_Index, past_file_path)
 
@@ -144,8 +145,6 @@ func Checkout(PathToLit, BranchName string) {
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	fmt.Println("Switched to branch", BranchName)
 
 	// // After switching branches remove these ghost directories which contains no files
 	// DeleteEmptyDir(PathToLit)
@@ -276,20 +275,24 @@ func GenerateIndex(PathToLit, Tree_Object_Hash string) (map[string]FileInfo, err
 
 // Performs actual switching operation of branch command
 func Switch(dir string, currentB, newB map[string]FileInfo) error {
+	fmt.Println("switch start")
 
 	// Loop over new Branch
 	for _, v := range newB {
 		fileInfo, exists := currentB[v.FilePath]
+		fmt.Println("switch mid", v.FilePath)
 
 		if exists {
 			delete(currentB, v.FilePath)
 			// skip if file already exists and hash value is same
 			if fileInfo.SHA1 == v.SHA1 {
+				fmt.Println("switch cont", v.FilePath)
 				delete(newB, v.FilePath)
 				continue
 			} else {
 				// delete the existing file and new file will be created in the following code
 				err := os.Remove(fileInfo.FilePath)
+				fmt.Println("switch rm", v.FilePath)
 				if err != nil {
 					fmt.Println(err.Error())
 					return err
@@ -307,14 +310,18 @@ func Switch(dir string, currentB, newB map[string]FileInfo) error {
 			}
 		}
 
+		fmt.Println("switch creating", v.FilePath)
+
 		// Now as we have our directory structure for the current file setup
 		// we can proceed to create the file by decompressing it and storing it at a particular location
 		inputFilePath := filepath.Join(dir, "/.bit/objects", string(v.SHA1[:2])+"/"+string(v.SHA1[2:]))
 
+		fmt.Println(inputFilePath, v.FilePath)
+
 		err = DecompressAndSaveFile(inputFilePath, v.FilePath)
 
 		if err != nil {
-			fmt.Println(err.Error())
+			fmt.Println("this is it", err.Error())
 		}
 		delete(newB, v.FilePath)
 	}
