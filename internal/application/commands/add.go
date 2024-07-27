@@ -14,7 +14,7 @@ func init() {
 	rootCmd.AddCommand(addCmd)
 }
 
-func sort(mp map[string]interface{}, fileInfo []core.FileInfo, curr *[]core.FileInfo){
+func sort(mp map[string]interface{}, fileInfo []core.FileInfo, curr *[]core.FileInfo) {
 	for _, v := range fileInfo {
 		_, exists := mp[v.FilePath]
 
@@ -68,9 +68,9 @@ var addCmd = &cobra.Command{
 			var specificModified []core.FileInfo
 			var specificDeleted []core.FileInfo
 
-			sort(files, untracked,&specificUntracked)
-			sort(files, modified,&specificModified)
-			sort(files, deleted,&specificDeleted)
+			sort(files, untracked, &specificUntracked)
+			sort(files, modified, &specificModified)
+			sort(files, deleted, &specificDeleted)
 
 			core.CoreAdd(dir, specificUntracked, specificModified, specificDeleted)
 		}

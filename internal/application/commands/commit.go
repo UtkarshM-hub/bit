@@ -33,14 +33,22 @@ var commitCmd = &cobra.Command{
 			return
 		}
 
+		currentActiveBranch, err := core.CurrentActiveBranch(dir)
+		if err != nil {
+			fmt.Println(err)
+		}
+
 		indexFilePath := filepath.Join(dir, "./.bit/index")
 
 		files := core.GetFilesStatus(dir)
 
 		tracked, _, modified, deleted, err := core.GetStatus(files, indexFilePath)
+		if err != nil {
+			fmt.Println(err)
+		}
 
 		if len(tracked) == 0 && len(modified) == 0 && len(deleted) == 0 {
-			fmt.Println("On branch <branch_name>")
+			fmt.Println("On branch", currentActiveBranch)
 			color.Red.Println("Nothing to commit, working tree clean")
 			return
 		}
