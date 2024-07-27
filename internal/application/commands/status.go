@@ -50,8 +50,13 @@ var statusCmd = &cobra.Command{
 			return
 		}
 
+		currentActiveBranch, err := core.CurrentActiveBranch(dir)
+		if err != nil {
+			fmt.Println(err)
+		}
+
 		if len(tracked) == 0 && len(untracked) == 0 && len(modified) == 0 && len(deleted) == 0 {
-			fmt.Println("On branch <branch_name>")
+			fmt.Println("On branch", currentActiveBranch)
 			fmt.Println("Nothing to commit, working tree clean")
 			return
 		}
@@ -59,7 +64,7 @@ var statusCmd = &cobra.Command{
 		statusMp := map[string]string{"M": "modified", "D": "deleted", "N": "new file"}
 
 		// print tracked files
-		fmt.Println("On branch <branch name>")
+		fmt.Println("On branch", currentActiveBranch)
 		// fmt.Println("Your branch is up to date with '<origin>/<branch name>'.")
 		if len(tracked) > 0 {
 			fmt.Printf("\nChanges to be committed:\n")

@@ -47,14 +47,19 @@ var checkoutCmd = &cobra.Command{
 
 		files := core.GetFilesStatus(dir)
 
+		currentActiveBranch, err := core.CurrentActiveBranch(dir)
+		if err != nil {
+			fmt.Println(err)
+		}
+
 		tracked, _, modified, deleted, err := core.GetStatus(files, indexFilePath)
 
-		if err!=nil{
+		if err != nil {
 			fmt.Println(err.Error())
 		}
 
 		if len(tracked) != 0 || len(modified) != 0 || len(deleted) != 0 {
-			fmt.Println("On branch <branch_name>")
+			fmt.Println("On branch", currentActiveBranch)
 			color.Red.Println("Commit changes before switching to another branch")
 			return
 		}
